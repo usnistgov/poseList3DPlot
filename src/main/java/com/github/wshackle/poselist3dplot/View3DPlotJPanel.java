@@ -48,7 +48,7 @@ import javax.swing.SwingUtilities;
 
 /**
  *
- * @author William Shackleford<shackle@nist.gov>
+ * @author Will Shackleford {@literal <william.shackleford@nist.gov>}
  */
 public class View3DPlotJPanel extends javax.swing.JPanel {
 
@@ -791,7 +791,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
     /**
      * Set the value of dragEnum
      *
-     * @param dragEnum new value of dragEnum
+     * @param _dragEnum
      */
     public void setDragEnum(final View3DDragEnum _dragEnum) {
         switch (_dragEnum) {

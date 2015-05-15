@@ -23,7 +23,7 @@ package com.github.wshackle.poselist3dplot;
 
 /**
  *
- * @author William Shackleford<shackle@nist.gov>
+ * @author Will Shackleford {@literal <william.shackleford@nist.gov>}
  */
 public enum View3DDragEnum {
     UNDEFINED,ROT_XY,ROT_Z,TRAN_XY,TRAN_Z,SCALE;
