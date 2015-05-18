@@ -67,24 +67,24 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             //fxpanel.setPreferredSize(this.jPanel1.getPreferredSize());
             fxpanel.setBackground(java.awt.Color.red);
             fxpanel.setVisible(true);
-           
+
 //            fxpanel.setScene(this.create3DScene(this.jPanel1.getPreferredSize().width,
 //                    this.jPanel1.getPreferredSize().height));
             //this.jPanel1.add(fxpanel);
             this.jPanel1.setLayout(new BorderLayout());
             this.jPanel1.add(fxpanel, BorderLayout.CENTER);
-            this.jPanel1.addMouseMotionListener(new MouseMotionListener() {
-
-                @Override
-                public void mouseDragged(java.awt.event.MouseEvent e) {
-                    mouseDraggedInSwingJPanel(e);
-                }
-
-                @Override
-                public void mouseMoved(java.awt.event.MouseEvent e) {
-//                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-                }
-            });
+//            this.jPanel1.addMouseMotionListener(new MouseMotionListener() {
+//
+//                @Override
+//                public void mouseDragged(java.awt.event.MouseEvent e) {
+//                    mouseDraggedInSwingJPanel(e);
+//                }
+//
+//                @Override
+//                public void mouseMoved(java.awt.event.MouseEvent e) {
+////                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//                }
+//            });
             this.jPanel1.addMouseListener(new MouseListener() {
 
                 @Override
@@ -128,32 +128,31 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         }
     }
 
-    public void mouseDraggedInSwingJPanel(java.awt.event.MouseEvent e) {
-        if (null == lastSwingJpanelMouseEvent) {
-            lastSwingJpanelMouseEvent = e;
-            return;
-        }
-        double maxSize = Math.max(Math.max(this.jPanel1.getSize().height, this.jPanel1.getSize().width),
-                Math.max(this.jPanel1.getPreferredSize().height, this.jPanel1.getPreferredSize().width));
-        final double mouseDeltaX = ((double) e.getX() - lastSwingJpanelMouseEvent.getX()) / maxSize;
-        final double mouseDeltaY = ((double) e.getY() - lastSwingJpanelMouseEvent.getY()) / maxSize;
-        double halfX = this.jPanel1.getSize().width / 2.0;
-        double halfY = this.jPanel1.getSize().height / 2.0;
-        final double mouseDeltaTheta
-                = Math.toDegrees(
-                        Math.atan2(e.getY() - halfY, e.getX() - halfX)
-                        - Math.atan2(lastSwingJpanelMouseEvent.getY() - halfY, lastSwingJpanelMouseEvent.getX() - halfX)
-                );
-        Platform.runLater(new Runnable() {
-
-            @Override
-            public void run() {
-                transformWMouseDelta(mouseDeltaX, mouseDeltaY, mouseDeltaTheta,
-                        dragEnum);
-            }
-        });
-    }
-
+//    public void mouseDraggedInSwingJPanel(java.awt.event.MouseEvent e) {
+//        if (null == lastSwingJpanelMouseEvent) {
+//            lastSwingJpanelMouseEvent = e;
+//            return;
+//        }
+//        double maxSize = Math.max(Math.max(this.jPanel1.getSize().height, this.jPanel1.getSize().width),
+//                Math.max(this.jPanel1.getPreferredSize().height, this.jPanel1.getPreferredSize().width));
+//        final double mouseDeltaX = ((double) e.getX() - lastSwingJpanelMouseEvent.getX()) / maxSize;
+//        final double mouseDeltaY = ((double) e.getY() - lastSwingJpanelMouseEvent.getY()) / maxSize;
+//        double halfX = this.jPanel1.getSize().width / 2.0;
+//        double halfY = this.jPanel1.getSize().height / 2.0;
+//        final double mouseDeltaTheta
+//                = Math.toDegrees(
+//                        Math.atan2(e.getY() - halfY, e.getX() - halfX)
+//                        - Math.atan2(lastSwingJpanelMouseEvent.getY() - halfY, lastSwingJpanelMouseEvent.getX() - halfX)
+//                );
+//        Platform.runLater(new Runnable() {
+//
+//            @Override
+//            public void run() {
+//                transformWMouseDelta(mouseDeltaX, mouseDeltaY, mouseDeltaTheta,
+//                        dragEnum);
+//            }
+//        });
+//    }
     private java.awt.event.MouseEvent lastSwingJpanelMouseEvent = null;
 
     private void initFxScene() {
@@ -225,7 +224,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
                 handleKeyEvent(event);
             }
         });
-        
+
         return scene3D;
     }
 
@@ -286,29 +285,39 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             return;
         }
         //System.out.println("me = " + me);
-        double mousePosX = lastMouseEvent.getX();
-        double mousePosY = lastMouseEvent.getY();
-        double mouseOldX = mousePosX;
-        double mouseOldY = mousePosY;
-        mousePosX = me.getX();
-        mousePosY = me.getY();
+        double mouseNewX = lastMouseEvent.getX();
+        double mouseNewY = lastMouseEvent.getY();
+        double mouseOldX = mouseNewX;
+        double mouseOldY = mouseNewY;
+        mouseNewX = me.getX();
+        mouseNewY = me.getY();
         lastMouseEvent = me;
-        double mouseDeltaX = mousePosX - mouseOldX;
+        double mouseDeltaX = mouseNewX - mouseOldX;
         //System.out.println("mouseDeltaX = " + mouseDeltaX);
-        double mouseDeltaY = mousePosY - mouseOldY;
-        double halfX = scene3D.getWidth() / 2.0;
-        double halfY = scene3D.getHeight() / 2.0;
-        double mouseDeltaTheta
-                = Math.toDegrees(
-                        Math.atan2(mousePosY - halfY, mousePosX - halfX)
-                        - Math.atan2(mouseOldY - halfY, mouseOldX - halfX)
-                );
-        transformWMouseDelta(mouseDeltaX, mouseDeltaY, mouseDeltaTheta, dragEnum);
+        double mouseDeltaY = mouseNewY - mouseOldY;
+//        double halfX = scene3D.getWidth() / 2.0;
+//        double halfY = scene3D.getHeight() / 2.0;
+//        double oldAngle = Math.atan2(mouseOldY - halfY, mouseOldX - halfX);
+//        double newAngle = Math.atan2(mouseNewY - halfY, mouseNewX - halfX);
+//        double angleDiff = newAngle -oldAngle;
+//        if(angleDiff > Math.PI) {
+//            angleDiff -= 2*Math.PI;
+//        }
+//        if(angleDiff < -Math.PI) {
+//            angleDiff += 2*Math.PI;
+//        }
+//        double mouseDeltaTheta
+//                = Math.signum(newAngle-oldAngle) * Math.sqrt(mouseDeltaX * mouseDeltaX + mouseDeltaY * mouseDeltaY / 2.0);
+        transformWMouseDelta(mouseDeltaX, mouseDeltaY, dragEnum);
     }
 
-    public void transformWMouseDelta(double mouseDeltaX, double mouseDeltaY,
-            double mouseDeltaTheta,
-            View3DDragEnum dragEnum) {
+    /**
+     *
+     * @param mouseDeltaX the value of mouseDeltaX
+     * @param mouseDeltaY the value of mouseDeltaY
+     * @param dragEnum the value of dragEnum
+     */
+    public void transformWMouseDelta(double mouseDeltaX, double mouseDeltaY, View3DDragEnum dragEnum) {
         //System.out.println("mouseDeltaY = " + mouseDeltaY);
         double mouseDelta = Math.sqrt(mouseDeltaX * mouseDeltaX + mouseDeltaY * mouseDeltaY);
         //System.out.println("mouseDelta = " + mouseDelta);
@@ -322,15 +331,15 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             s.setY(newScale);
             s.setZ(newScale);
         } else if (dragEnum == View3DDragEnum.ROT_Z) {
-            rz.setAngle(rz.getAngle() - mouseDeltaTheta);
+            rz.setAngle(rz.getAngle() + mouseDeltaY * 0.75);
         } else if (dragEnum == View3DDragEnum.TRAN_Z) {
             t.setZ(t.getZ() + mouseDeltaY);
         } else if (dragEnum == View3DDragEnum.TRAN_XY) {
             t.setX(t.getX() + mouseDeltaX);
             t.setY(t.getY() - mouseDeltaY);
         } else if (dragEnum == View3DDragEnum.ROT_XY) {
-            ry.setAngle(ry.getAngle() - mouseDeltaX);
-            rx.setAngle(rx.getAngle() + mouseDeltaY);
+            ry.setAngle(ry.getAngle() + mouseDeltaX * 0.75);
+            rx.setAngle(rx.getAngle() + mouseDeltaY * 0.75);
         }
 //        System.out.println("contentGroup.getTransforms() = " + contentGroup.getTransforms());
     }
@@ -369,12 +378,12 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
     }
 
     public void updateTrack(Group trackGroup, Group curPosGroup, Track track) {
-        if(null == track) {
+        if (null == track) {
             return;
         }
         int gsz = trackGroup.getChildren().size();
         final int cur_tg_index = (track.cur_time_index * 2 - 1);
-        if (cur_tg_index >= 0 
+        if (cur_tg_index >= 0
                 && cur_tg_index < (gsz - 1)) {
             trackGroup.getChildren().remove(cur_tg_index, gsz - 1);
         }
@@ -570,7 +579,6 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         jRadioButtonRotZ = new javax.swing.JRadioButton();
         jRadioButtonTranXY = new javax.swing.JRadioButton();
         jRadioButtonTranZ = new javax.swing.JRadioButton();
-        jRadioButtonScale = new javax.swing.JRadioButton();
         jButtonXPosView = new javax.swing.JButton();
         jButtonXNegView = new javax.swing.JButton();
         jButtonYPosView = new javax.swing.JButton();
@@ -654,19 +662,6 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             }
         });
 
-        buttonGroupDragEnum.add(jRadioButtonScale);
-        jRadioButtonScale.setText("Scale");
-        jRadioButtonScale.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                jRadioButtonScaleItemStateChanged(evt);
-            }
-        });
-        jRadioButtonScale.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jRadioButtonScaleActionPerformed(evt);
-            }
-        });
-
         jButtonXPosView.setText("X+ View");
         jButtonXPosView.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -721,34 +716,30 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 884, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jButtonXPosView)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButtonXNegView)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButtonYPosView)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButtonYNegView)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButtonZPosView)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButtonZNegView))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jRadioButtonRotXY)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jRadioButtonRotZ)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jRadioButtonTranXY)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jRadioButtonTranZ)))
+                        .addComponent(jButtonXPosView)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jRadioButtonScale)
+                        .addComponent(jButtonXNegView)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jCheckBoxPre)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addComponent(jButtonYPosView)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonYNegView)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonZPosView)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonZNegView)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jRadioButtonRotXY)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jRadioButtonRotZ)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jRadioButtonTranXY)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jRadioButtonTranZ)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 77, Short.MAX_VALUE)
+                        .addComponent(jCheckBoxPre)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -762,7 +753,6 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
                     .addComponent(jRadioButtonRotZ)
                     .addComponent(jRadioButtonTranXY)
                     .addComponent(jRadioButtonTranZ)
-                    .addComponent(jRadioButtonScale)
                     .addComponent(jCheckBoxPre)
                     .addComponent(jLabel1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -791,7 +781,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
     /**
      * Set the value of dragEnum
      *
-     * @param _dragEnum
+     * @param _dragEnum which coordinate(s) should be moved when a mouse is dragged
      */
     public void setDragEnum(final View3DDragEnum _dragEnum) {
         switch (_dragEnum) {
@@ -825,11 +815,11 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
                 }
                 break;
 
-            case SCALE:
-                if (null != this.jRadioButtonScale && !this.jRadioButtonScale.isSelected()) {
-                    this.jRadioButtonScale.setSelected(true);
-                }
-                break;
+//            case SCALE:
+//                if (null != this.jRadioButtonScale && !this.jRadioButtonScale.isSelected()) {
+//                    this.jRadioButtonScale.setSelected(true);
+//                }
+//                break;
         }
         if (this.dragEnum != _dragEnum) {
             Platform.runLater(new Runnable() {
@@ -926,11 +916,12 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             if (dragEnum != View3DDragEnum.TRAN_Z) {
                 this.setDragEnum(View3DDragEnum.TRAN_Z);
             }
-        } else if (this.jRadioButtonScale.isSelected()) {
-            if (dragEnum != View3DDragEnum.SCALE) {
-                this.setDragEnum(View3DDragEnum.SCALE);
-            }
-        }
+        } 
+//        else if (this.jRadioButtonScale.isSelected()) {
+//            if (dragEnum != View3DDragEnum.SCALE) {
+//                this.setDragEnum(View3DDragEnum.SCALE);
+//            }
+//        }
     }
 
     private void jRadioButtonRotXYActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButtonRotXYActionPerformed
@@ -949,10 +940,6 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         updateDragEnum();
     }//GEN-LAST:event_jRadioButtonTranZActionPerformed
 
-    private void jRadioButtonScaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButtonScaleActionPerformed
-        updateDragEnum();
-    }//GEN-LAST:event_jRadioButtonScaleActionPerformed
-
     private void jRadioButtonRotXYItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jRadioButtonRotXYItemStateChanged
         updateDragEnum();
     }//GEN-LAST:event_jRadioButtonRotXYItemStateChanged
@@ -968,10 +955,6 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
     private void jRadioButtonTranZItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jRadioButtonTranZItemStateChanged
         updateDragEnum();
     }//GEN-LAST:event_jRadioButtonTranZItemStateChanged
-
-    private void jRadioButtonScaleItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jRadioButtonScaleItemStateChanged
-        updateDragEnum();
-    }//GEN-LAST:event_jRadioButtonScaleItemStateChanged
 
     private void zPosView() {
         t.setX(0);
@@ -1065,7 +1048,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         tmain.setY(0);
         tmain.setZ(0);
         rxmain.setAngle(-90);
-        rymain.setAngle(0);
+        rymain.setAngle(90);
         rzmain.setAngle(0);
         resetTransforms();
     }
@@ -1083,8 +1066,8 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         tmain.setX(0);
         tmain.setY(0);
         tmain.setZ(0);
-        rxmain.setAngle(-90);
-        rymain.setAngle(0);
+        rxmain.setAngle(+90);
+        rymain.setAngle(90);
         rzmain.setAngle(0);
         resetTransforms();
     }
@@ -1164,8 +1147,8 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         fxpanel.setPreferredSize(this.jPanel1.getPreferredSize());
         fxpanel.setSize(this.jPanel1.getSize());
     }
-    
-    private void  updateSizes() {
+
+    private void updateSizes() {
 //        if(this.jPanel1.getSize().width > this.jPanel1.getPreferredSize().width
 //                && this.jPanel1.getSize().height > this.jPanel1.getPreferredSize().height) {
 //            this.jPanel1.setPreferredSize(this.jPanel1.getSize());
@@ -1198,7 +1181,6 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JRadioButton jRadioButtonRotXY;
     private javax.swing.JRadioButton jRadioButtonRotZ;
-    private javax.swing.JRadioButton jRadioButtonScale;
     private javax.swing.JRadioButton jRadioButtonTranXY;
     private javax.swing.JRadioButton jRadioButtonTranZ;
     // End of variables declaration//GEN-END:variables

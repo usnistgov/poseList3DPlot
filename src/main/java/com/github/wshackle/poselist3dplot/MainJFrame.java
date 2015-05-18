@@ -5,6 +5,11 @@
  */
 package com.github.wshackle.poselist3dplot;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -64,15 +69,15 @@ public class MainJFrame extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(view3DPlotJPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap()
+                .addComponent(view3DPlotJPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(view3DPlotJPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap()
+                .addComponent(view3DPlotJPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -90,31 +95,64 @@ public class MainJFrame extends javax.swing.JFrame {
         }
     }// </editor-fold>//GEN-END:initComponents
 
+    public Track readTrack(CsvParseOptions options, File f) {
+        Track track = new Track();
+        track.setData(new ArrayList<TrackPoint>());
+        try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+            // ignore header 
+            br.readLine();
+            String line=null;
+            while(null != (line = br.readLine())) {
+                String tok[] = line.split(options.delim);
+                TrackPoint tp = new TrackPoint();
+                if(options.X_INDEX >= 0 && options.X_INDEX < tok.length) {
+                    tp.x = Double.valueOf(tok[options.X_INDEX]);
+                }
+                if(options.Y_INDEX >= 0 && options.Y_INDEX < tok.length) {
+                    tp.y = Double.valueOf(tok[options.Y_INDEX]);
+                }
+                if(options.Z_INDEX >= 0 && options.Z_INDEX < tok.length) {
+                    tp.z = Double.valueOf(tok[options.Z_INDEX]);
+                }
+                track.getData().add(tp);
+            }
+            
+        } catch (IOException ex) {
+            Logger.getLogger(MainJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return track;
+    }
+
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         JFileChooser chooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
                 "Comma-Separated-Values", "csv");
         chooser.setFileFilter(filter);
         int returnVal = chooser.showOpenDialog(this);
-        if(returnVal ==  JFileChooser.APPROVE_OPTION) {
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
-                List<PM_POSE> l = Posemath.csvToPoseListF(chooser.getSelectedFile(),
-                        0,1,2,3,4,5);
+                CsvParseOptions csvParseOptions = CsvParseOptionsJPanel.showDialog(this, chooser.getSelectedFile());
+//                List<PM_POSE> l = Posemath.csvToPoseListF(chooser.getSelectedFile(),
+//                        csvParseOptions.X_INDEX,
+//                        csvParseOptions.Y_INDEX,
+//                        csvParseOptions.Z_INDEX,
+//                        -1, -1, -1);
+                Track track = this.readTrack(csvParseOptions, chooser.getSelectedFile());
                 List<List<Track>> tracksList = new ArrayList<>();
                 List<Track> trackList = new ArrayList<>();
                 tracksList.add(trackList);
-                Track track = new Track();
-                List<TrackPoint> data = new ArrayList<>();
-                for(PM_POSE p : l) {
-                    TrackPoint tp = new TrackPoint();
-                    tp.x = p.tran.x;
-                    tp.y = p.tran.y;
-                    tp.z = p.tran.z;
-                    data.add(tp);
-                }
-                track.setData(data);
-                track.currentPoint = data.get(data.size()-1);
-                track.cur_time_index = data.size()-1;
+                
+                List<TrackPoint> data = track.getData();
+//                for (PM_POSE p : l) {
+//                    TrackPoint tp = new TrackPoint();
+//                    tp.x = p.tran.x;
+//                    tp.y = p.tran.y;
+//                    tp.z = p.tran.z;
+//                    data.add(tp);
+//                }
+//                track.setData(data);
+                track.currentPoint = data.get(data.size() - 1);
+                track.cur_time_index = data.size() - 1;
                 trackList.add(track);
                 this.view3DPlotJPanel1.setTracksList(tracksList);
             } catch (Exception ex) {
