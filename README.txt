@@ -32,3 +32,7 @@ The plot can be rotated and moved to view from any angle/position.
 Select one of the radio buttons and the bottom determine how the plot is
 rotated or moved when you drag within the display area.
 Buttons provide quicker access to predefined views.
+
+
+Build Status can be checked here:
+https://travis-ci.org/usnistgov/poseList3DPlot
