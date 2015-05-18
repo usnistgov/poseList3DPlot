@@ -52,6 +52,7 @@ public class MainJFrame extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jMenu1.setText("File");
+        jMenu1.addActionListener(formListener);
 
         jMenuItem1.setText("Open ...");
         jMenuItem1.addActionListener(formListener);
@@ -92,6 +93,9 @@ public class MainJFrame extends javax.swing.JFrame {
             if (evt.getSource() == jMenuItem1) {
                 MainJFrame.this.jMenuItem1ActionPerformed(evt);
             }
+            else if (evt.getSource() == jMenu1) {
+                MainJFrame.this.jMenu1ActionPerformed(evt);
+            }
         }
     }// </editor-fold>//GEN-END:initComponents
 
@@ -131,18 +135,32 @@ public class MainJFrame extends javax.swing.JFrame {
         int returnVal = chooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
-                CsvParseOptions csvParseOptions = CsvParseOptionsJPanel.showDialog(this, chooser.getSelectedFile());
+                final File f = chooser.getSelectedFile();
+                openCsvFile(f);
+            } catch (Exception ex) {
+                Logger.getLogger(MainJFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    public void openCsvFile(final File f) {
+        CsvParseOptions csvParseOptions = CsvParseOptionsJPanel.showDialog(this, f);
 //                List<PM_POSE> l = Posemath.csvToPoseListF(chooser.getSelectedFile(),
 //                        csvParseOptions.X_INDEX,
 //                        csvParseOptions.Y_INDEX,
 //                        csvParseOptions.Z_INDEX,
 //                        -1, -1, -1);
-                Track track = this.readTrack(csvParseOptions, chooser.getSelectedFile());
-                List<List<Track>> tracksList = new ArrayList<>();
-                List<Track> trackList = new ArrayList<>();
-                tracksList.add(trackList);
-                
-                List<TrackPoint> data = track.getData();
+        Track track = this.readTrack(csvParseOptions, f);
+        List<List<Track>> tracksList = this.view3DPlotJPanel1.getTracksList();
+        if(null == tracksList) {
+            tracksList = new ArrayList<>();
+        }
+        List<Track> trackList = tracksList.size() > 0 ?tracksList.get(0): null;
+        if(null == trackList) {
+            trackList = new ArrayList<>();
+            tracksList.add(trackList);
+        }
+        List<TrackPoint> data = track.getData();
 //                for (PM_POSE p : l) {
 //                    TrackPoint tp = new TrackPoint();
 //                    tp.x = p.tran.x;
@@ -151,20 +169,20 @@ public class MainJFrame extends javax.swing.JFrame {
 //                    data.add(tp);
 //                }
 //                track.setData(data);
-                track.currentPoint = data.get(data.size() - 1);
-                track.cur_time_index = data.size() - 1;
-                trackList.add(track);
-                this.view3DPlotJPanel1.setTracksList(tracksList);
-            } catch (Exception ex) {
-                Logger.getLogger(MainJFrame.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }//GEN-LAST:event_jMenuItem1ActionPerformed
+        track.currentPoint = data.get(data.size() - 1);
+        track.cur_time_index = data.size() - 1;
+        trackList.add(track);
+        this.view3DPlotJPanel1.setTracksList(tracksList);
+    }
+
+    private void jMenu1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenu1ActionPerformed
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(final String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -191,7 +209,16 @@ public class MainJFrame extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new MainJFrame().setVisible(true);
+                MainJFrame mjf = new MainJFrame();
+                mjf.setVisible(true);
+                for(String arg : args) {
+                    try {
+                        File f = new File(arg);
+                        mjf.openCsvFile(f);
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
     }
