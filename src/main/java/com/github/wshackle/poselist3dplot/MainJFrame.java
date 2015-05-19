@@ -7,7 +7,6 @@ package com.github.wshackle.poselist3dplot;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,9 +14,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import rcs.posemath.PM_POSE;
-import rcs.posemath.Posemath;
+import rcs.posemath.PmPose;
 
 /**
  *
@@ -30,6 +29,35 @@ public class MainJFrame extends javax.swing.JFrame {
      */
     public MainJFrame() {
         initComponents();
+    }
+
+    public static MainJFrame showPoseList(final List<? extends PmPose> l) {
+
+        final MainJFrame mjf = new MainJFrame();
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                mjf.addTrack(toTrack(l));
+                mjf.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                mjf.setVisible(true);
+            }
+        });
+        return mjf;
+    }
+
+    public static Track toTrack(List<? extends PmPose> l) {
+        Track track = new Track();
+        track.setData(new ArrayList<TrackPoint>());
+        List<TrackPoint> data = track.getData();
+        for (PmPose pose : l) {
+            TrackPoint tp = new TrackPoint();
+            tp.x = pose.tran.x;
+            tp.y = pose.tran.y;
+            tp.z = pose.tran.z;
+            data.add(tp);
+        }
+        return track;
     }
 
     /**
@@ -105,22 +133,22 @@ public class MainJFrame extends javax.swing.JFrame {
         try (BufferedReader br = new BufferedReader(new FileReader(f))) {
             // ignore header 
             br.readLine();
-            String line=null;
-            while(null != (line = br.readLine())) {
+            String line = null;
+            while (null != (line = br.readLine())) {
                 String tok[] = line.split(options.delim);
                 TrackPoint tp = new TrackPoint();
-                if(options.X_INDEX >= 0 && options.X_INDEX < tok.length) {
+                if (options.X_INDEX >= 0 && options.X_INDEX < tok.length) {
                     tp.x = Double.valueOf(tok[options.X_INDEX]);
                 }
-                if(options.Y_INDEX >= 0 && options.Y_INDEX < tok.length) {
+                if (options.Y_INDEX >= 0 && options.Y_INDEX < tok.length) {
                     tp.y = Double.valueOf(tok[options.Y_INDEX]);
                 }
-                if(options.Z_INDEX >= 0 && options.Z_INDEX < tok.length) {
+                if (options.Z_INDEX >= 0 && options.Z_INDEX < tok.length) {
                     tp.z = Double.valueOf(tok[options.Z_INDEX]);
                 }
                 track.getData().add(tp);
             }
-            
+
         } catch (IOException ex) {
             Logger.getLogger(MainJFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -151,12 +179,16 @@ public class MainJFrame extends javax.swing.JFrame {
 //                        csvParseOptions.Z_INDEX,
 //                        -1, -1, -1);
         Track track = this.readTrack(csvParseOptions, f);
+        addTrack(track);
+    }
+
+    public void addTrack(Track track) {
         List<List<Track>> tracksList = this.view3DPlotJPanel1.getTracksList();
-        if(null == tracksList) {
+        if (null == tracksList) {
             tracksList = new ArrayList<>();
         }
-        List<Track> trackList = tracksList.size() > 0 ?tracksList.get(0): null;
-        if(null == trackList) {
+        List<Track> trackList = tracksList.size() > 0 ? tracksList.get(0) : null;
+        if (null == trackList) {
             trackList = new ArrayList<>();
             tracksList.add(trackList);
         }
@@ -211,11 +243,11 @@ public class MainJFrame extends javax.swing.JFrame {
             public void run() {
                 MainJFrame mjf = new MainJFrame();
                 mjf.setVisible(true);
-                for(String arg : args) {
+                for (String arg : args) {
                     try {
                         File f = new File(arg);
                         mjf.openCsvFile(f);
-                    } catch(Exception e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
