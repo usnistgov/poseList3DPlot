@@ -18,31 +18,5 @@ public class TrackTest {
     public TrackTest() {
     }
 
-    /**
-     * Test of getData method, of class Track.
-     */
-    @Test
-    public void testGetData() {
-        System.out.println("getData");
-        Track instance = new Track();
-        List<TrackPoint> expResult = null;
-        List<TrackPoint> result = instance.getData();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of setData method, of class Track.
-     */
-    @Test
-    public void testSetData() {
-        System.out.println("setData");
-        List<TrackPoint> data = null;
-        Track instance = new Track();
-        instance.setData(data);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
     
 }
