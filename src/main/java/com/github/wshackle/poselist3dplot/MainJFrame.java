@@ -16,8 +16,10 @@ import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import rcs.posemath.PmException;
 import rcs.posemath.PmPose;
 import rcs.posemath.PmRpy;
+import rcs.posemath.Posemath;
 
 /**
  *
@@ -51,11 +53,20 @@ public class MainJFrame extends javax.swing.JFrame {
         Track track = new Track();
         track.setData(new ArrayList<TrackPoint>());
         List<TrackPoint> data = track.getData();
+        boolean pmErrorOccurred = false;
         for (PmPose pose : l) {
             TrackPoint tp = new TrackPoint();
             tp.x = pose.tran.x;
             tp.y = pose.tran.y;
             tp.z = pose.tran.z;
+            if (!pmErrorOccurred) {
+                try {
+                    tp.setRpy(Posemath.toRpy(pose.rot));
+                } catch (PmException ex) {
+                    pmErrorOccurred = true;
+                    Logger.getLogger(MainJFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
             data.add(tp);
         }
         return track;
@@ -215,7 +226,7 @@ public class MainJFrame extends javax.swing.JFrame {
 //                    data.add(tp);
 //                }
 //                track.setData(data);
-        if(null == data || data.size() < 1) {
+        if (null == data || data.size() < 1) {
             return;
         }
         track.currentPoint = data.get(data.size() - 1);
@@ -225,12 +236,12 @@ public class MainJFrame extends javax.swing.JFrame {
     }
 
     private void jMenuItemClearAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemClearAllActionPerformed
-       List<List<Track>> tracksList = this.view3DPlotJPanel1.getTracksList();
-       if(null == tracksList) {
+        List<List<Track>> tracksList = this.view3DPlotJPanel1.getTracksList();
+        if (null == tracksList) {
             tracksList.clear();
-       }
-       this.view3DPlotJPanel1.setTracksList(null);
-       
+        }
+        this.view3DPlotJPanel1.setTracksList(null);
+
     }//GEN-LAST:event_jMenuItemClearAllActionPerformed
 
     /**
