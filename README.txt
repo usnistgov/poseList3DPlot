@@ -45,3 +45,7 @@ Buttons provide quicker access to predefined views.
 
 Build Status can be checked here:
 https://travis-ci.org/usnistgov/poseList3DPlot
+
+Pre-built Snapshot Jars can be downloaded from:
+https://oss.sonatype.org/content/repositories/snapshots/com/github/wshackle/poseList3DPlot/1.0-SNAPSHOT/
+
