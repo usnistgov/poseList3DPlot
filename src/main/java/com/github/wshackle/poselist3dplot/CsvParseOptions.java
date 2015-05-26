@@ -24,6 +24,9 @@ public class CsvParseOptions implements Cloneable {
     public int ROI_HEIGHT_INDEX = 12;
     public int CONFIDENCE_INDEX = 13;
     public int RADIUS_INDEX = 14;
+    public int ROLL_INDEX = 15;
+    public int PITCH_INDEX = 16;
+    public int YAW_INDEX = 17;
     public double transform[] = null;
     public String trasfrom_file = null;
     public String filename = null;

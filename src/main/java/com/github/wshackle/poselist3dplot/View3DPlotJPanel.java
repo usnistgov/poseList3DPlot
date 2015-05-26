@@ -23,9 +23,11 @@ package com.github.wshackle.poselist3dplot;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.DepthTest;
@@ -45,6 +47,7 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javax.swing.SwingUtilities;
+import rcs.posemath.PmRpy;
 
 /**
  *
@@ -394,14 +397,18 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         if (null == track.getData() || track.getData().size() < start_index + 1) {
             return;
         }
-        javafx.scene.paint.Color pointColor = new javafx.scene.paint.Color(track.pointColor.getRed() / 255.0,
-                track.pointColor.getGreen() / 255.0,
-                track.pointColor.getBlue() / 255.0,
-                1);
-        javafx.scene.paint.Color lineColor = new javafx.scene.paint.Color(track.lineColor.getRed() / 255.0,
-                track.lineColor.getGreen() / 255.0,
-                track.lineColor.getBlue() / 255.0,
-                1);
+        javafx.scene.paint.Color pointColor
+                = new javafx.scene.paint.Color(
+                        track.pointColor.getRed() / 255.0,
+                        track.pointColor.getGreen() / 255.0,
+                        track.pointColor.getBlue() / 255.0,
+                        1);
+        javafx.scene.paint.Color lineColor
+                = new javafx.scene.paint.Color(
+                        track.lineColor.getRed() / 255.0,
+                        track.lineColor.getGreen() / 255.0,
+                        track.lineColor.getBlue() / 255.0,
+                        1);
         PhongMaterial ptMaterial = new PhongMaterial();
         ptMaterial.setSpecularColor(pointColor);
         ptMaterial.setDiffuseColor(pointColor);
@@ -420,32 +427,50 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
                 txt.setRotationAxis(Rotate.X_AXIS);
                 curPosGroup.getChildren().addAll(sphere, txt);
             }
-            curPosGroup.setTranslateX(track.currentPoint.x * 100.0);
-            curPosGroup.setTranslateY(track.currentPoint.y * 100.0);
-            curPosGroup.setTranslateZ(track.currentPoint.z * 100.0);
+            curPosGroup.setTranslateX(track.currentPoint.x * distScale);
+            curPosGroup.setTranslateY(track.currentPoint.y * distScale);
+            curPosGroup.setTranslateZ(track.currentPoint.z * distScale);
         }
+        TrackPoint last_tp = track.getData().get(start_index - 1);
         for (int i = start_index; i < track.getData().size() && i < track.cur_time_index; i++) {
-            TrackPoint last_tp = track.getData().get(i - 1);
             TrackPoint tp = track.getData().get(i);
             double dist = last_tp.distance(tp);
-            double radius = Math.min(dist * 100.0 / 2.0, 1.0);
-            Cylinder cyl = new Cylinder(radius, dist * 100.0);
+            if (dist < distScale/1000.0) {
+                continue;
+            }
+//            double radius = Math.min(dist * distScale / 2.0, 1.0);
+            Cylinder cyl = new Cylinder(1.0, dist * distScale);
 //            cyl.setTranslateX(last_tp.x*100.0);
 //            cyl.setTranslateY(last_tp.y*100.0);
 //            cyl.setTranslateZ(last_tp.z*100.0);
             cyl.getTransforms().addAll(
-                    new Translate(last_tp.x * 100.0, last_tp.y * 100.0, last_tp.z * 100.0),
+                    new Translate(last_tp.x * distScale, last_tp.y * distScale, last_tp.z * distScale),
                     new Rotate(Math.toDegrees(Math.atan2(tp.x - last_tp.x, tp.z - last_tp.z)), Rotate.Y_AXIS),
                     new Rotate(Math.toDegrees(Math.acos((tp.y - last_tp.y) / dist)), Rotate.X_AXIS),
-                    new Translate(0, dist * 50.0, 0)
+                    new Translate(0, dist * distScale/2.0, 0)
             );
             cyl.setMaterial(lineMaterial);
             Sphere sphere = new Sphere(5.0);
-            sphere.setTranslateX(tp.x * 100.0);
-            sphere.setTranslateY(tp.y * 100.0);
-            sphere.setTranslateZ(tp.z * 100.0);
+            sphere.setTranslateX(tp.x * distScale);
+            sphere.setTranslateY(tp.y * distScale);
+            sphere.setTranslateZ(tp.z * distScale);
             sphere.setMaterial(ptMaterial);
             trackGroup.getChildren().addAll(sphere, cyl);
+            if (null != tp.getRpy()) {
+                Group axisGroup = createAxis(15.0);
+//                axisGroup.setTranslateX(tp.x * 100.0);
+//                axisGroup.setTranslateY(tp.y * 100.0);
+//                axisGroup.setTranslateZ(tp.z * 100.0);
+                PmRpy rpy = tp.getRpy();
+                axisGroup.getTransforms().addAll(
+                        new Translate(tp.x * distScale, tp.y * distScale, tp.z *distScale),
+                        new Rotate(Math.toDegrees(rpy.r), Rotate.X_AXIS),
+                        new Rotate(Math.toDegrees(rpy.p), Rotate.Y_AXIS),
+                        new Rotate(Math.toDegrees(rpy.y), Rotate.Z_AXIS)
+                );
+                trackGroup.getChildren().addAll(axisGroup);
+            }
+            last_tp = tp;
         }
     }
 
@@ -453,6 +478,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         if (null == lt) {
             return;
         }
+        Set<Group> matchedGroups  = new HashSet<>();
         for (Track track : lt) {
             Group trackGroup = this.trackGroupMap.get(track);
             if (trackGroup == null) {
@@ -463,6 +489,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             if (!g.getChildren().contains(trackGroup)) {
                 g.getChildren().add(trackGroup);
             }
+            matchedGroups.add(trackGroup);
             Group curPosGroup = this.trackCurPosGroupMap.get(track);
             if (curPosGroup == null) {
                 curPosGroup = new Group();
@@ -472,14 +499,29 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             if (!g.getChildren().contains(curPosGroup)) {
                 g.getChildren().add(curPosGroup);
             }
+            matchedGroups.add(curPosGroup);
             updateTrack(trackGroup, curPosGroup, track);
+        }
+        for(Entry<Track,Group> entry : this.trackGroupMap.entrySet()) {
+            if(!matchedGroups.contains(entry.getValue())) {
+                entry.getValue().getChildren().clear();
+                this.trackGroupMap.remove(entry.getKey());
+            }
+        }
+        for(Entry<Track,Group> entry : this.trackCurPosGroupMap.entrySet()) {
+            if(!matchedGroups.contains(entry.getValue())) {
+                entry.getValue().getChildren().clear();
+                this.trackCurPosGroupMap.remove(entry.getKey());
+            }
         }
     }
 
     public void updateTracksListsFX() {
-        if (null == this.TracksList) {
+        if (null == this.TracksList || this.TracksList.size() < 1) {
+            clear();
             return;
         }
+        Set<Group> matchedGroups  = new HashSet<>();
         for (List<Track> lt : this.TracksList) {
             Group g = trackListGroupMap.get(lt);
             if (null == g) {
@@ -491,7 +533,29 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
                 TracksGroup.getChildren().add(g);
             }
             this.updateTrackList(g, lt);
+            matchedGroups.add(g);
         }
+        for(Entry<List<Track>,Group> entry : this.trackListGroupMap.entrySet()) {
+            if(!matchedGroups.contains(entry.getValue())) {
+                entry.getValue().getChildren().clear();
+                this.trackListGroupMap.remove(entry.getKey());
+            }
+        }
+    }
+
+    public void clear() {
+        for (Group g : trackListGroupMap.values()) {
+            g.getChildren().clear();
+        }
+        trackListGroupMap.clear();
+        for (Group g : trackGroupMap.values()) {
+            g.getChildren().clear();
+        }
+        trackGroupMap.clear();
+        for (Group g : trackCurPosGroupMap.values()) {
+            g.getChildren().clear();
+        }
+        trackCurPosGroupMap.clear();
     }
 
     HashMap<Track, Group> trackGroupMap = new HashMap<>();
@@ -502,39 +566,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
 
     public Node create3dContent() {
         TracksGroup = new Group();
-        Box redBox = new Box(100.0, 10.0, 10.0);
-        redBox.setTranslateX(50.0);
-        final javafx.scene.paint.Color jfxRed = javafx.scene.paint.Color.RED;
-        final javafx.scene.paint.Color jfxBlue = javafx.scene.paint.Color.BLUE;
-        final javafx.scene.paint.Color jfxGreen = javafx.scene.paint.Color.GREEN;
-        PhongMaterial redMaterial = new PhongMaterial();
-        redMaterial.setSpecularColor(jfxRed);
-        redMaterial.setDiffuseColor(jfxRed);
-        redBox.setMaterial(redMaterial);
-        Box blueBox = new Box(10.0, 100.0, 10.0);
-        blueBox.setTranslateY(50);
-        PhongMaterial blueMaterial = new PhongMaterial();
-        blueMaterial.setSpecularColor(jfxBlue);
-        blueMaterial.setDiffuseColor(jfxBlue);
-        blueBox.setMaterial(blueMaterial);
-        Box greenBox = new Box(10.0, 10.0, 100.0);
-        greenBox.setTranslateZ(50.0);
-        PhongMaterial greenMaterial = new PhongMaterial();
-        greenMaterial.setSpecularColor(jfxGreen);
-        greenMaterial.setDiffuseColor(jfxGreen);
-        greenBox.setMaterial(greenMaterial);
-        //redBox.getTransforms().add(new Translate(100,100,100));
-//        Cube3D.Cube c = new Cube3D.Cube(50, Color.RED, 1);
-//        c.rx.setAngle(45);
-//        c.ry.setAngle(45);
-//        Cube3D.Cube c2 = new Cube3D.Cube(50, Color.GREEN, 1);
-//        c2.setTranslateX(100);
-//        c2.rx.setAngle(45);
-//        c2.ry.setAngle(45);
-//        Cube3D.Cube c3 = new Cube3D.Cube(50, Color.ORANGE, 1);
-//        c3.setTranslateX(-100);
-//        c3.rx.setAngle(45);
-//        c3.ry.setAngle(45);
+        Group axisGroup = createAxis(100);
 
 //        animation = new Timeline();
 //        animation.getKeyFrames().addAll(
@@ -558,9 +590,47 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         Text zText = new Text("Z");
         zText.setTranslateZ(120.0);
         zText.getTransforms().add(new Rotate(180.0, Rotate.X_AXIS));
-        Group g = new Group(TracksGroup, redBox, blueBox, greenBox, xText, yText, zText);
-
+        Group g = new Group(TracksGroup, axisGroup, xText, yText, zText);
         return g;
+    }
+
+    /**
+     *
+     * @param redBox the value of redBox
+     */
+    private Group createAxis(double scale) {
+        Box redBox = new Box(scale, scale / 10.0, scale / 10.0);
+        redBox.setTranslateX(scale / 2.0);
+        PhongMaterial redMaterial = new PhongMaterial();
+        redMaterial.setSpecularColor(javafx.scene.paint.Color.RED);
+        redMaterial.setDiffuseColor(javafx.scene.paint.Color.RED);
+        redBox.setMaterial(redMaterial);
+        Box blueBox = new Box(scale / 10.0, scale, scale / 10.0);
+        blueBox.setTranslateY(scale / 2.0);
+        PhongMaterial blueMaterial = new PhongMaterial();
+        blueMaterial.setSpecularColor(javafx.scene.paint.Color.BLUE);
+        blueMaterial.setDiffuseColor(javafx.scene.paint.Color.BLUE);
+        blueBox.setMaterial(blueMaterial);
+        Box greenBox = new Box(scale / 10.0, scale / 10.0, scale);
+        greenBox.setTranslateZ(scale / 2.0);
+        PhongMaterial greenMaterial = new PhongMaterial();
+        greenMaterial.setSpecularColor(javafx.scene.paint.Color.GREEN);
+        greenMaterial.setDiffuseColor(javafx.scene.paint.Color.GREEN);
+        greenBox.setMaterial(greenMaterial);
+        Group axisGroup = new Group(redBox, blueBox, greenBox);
+        //redBox.getTransforms().add(new Translate(100,100,100));
+//        Cube3D.Cube c = new Cube3D.Cube(50, Color.RED, 1);
+//        c.rx.setAngle(45);
+//        c.ry.setAngle(45);
+//        Cube3D.Cube c2 = new Cube3D.Cube(50, Color.GREEN, 1);
+//        c2.setTranslateX(100);
+//        c2.rx.setAngle(45);
+//        c2.ry.setAngle(45);
+//        Cube3D.Cube c3 = new Cube3D.Cube(50, Color.ORANGE, 1);
+//        c3.setTranslateX(-100);
+//        c3.rx.setAngle(45);
+//        c3.ry.setAngle(45);
+        return axisGroup;
     }
 
     /**
@@ -586,6 +656,9 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         jButtonYNegView = new javax.swing.JButton();
         jCheckBoxPre = new javax.swing.JCheckBox();
         jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jTextFieldDistScale = new javax.swing.JTextField();
+        jButtonSetScale = new javax.swing.JButton();
 
         jPanel1.setBackground(new java.awt.Color(34, 228, 32));
         jPanel1.setBorder(new javax.swing.border.MatteBorder(null));
@@ -600,7 +673,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 467, Short.MAX_VALUE)
+            .addGap(0, 455, Short.MAX_VALUE)
         );
 
         jButtonZPosView.setText("Z+ View");
@@ -707,6 +780,22 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
 
         jLabel1.setText("Drag mouse in display to ...: ");
 
+        jLabel2.setText("Distance Scale:");
+
+        jTextFieldDistScale.setText("100.0    ");
+        jTextFieldDistScale.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextFieldDistScaleActionPerformed(evt);
+            }
+        });
+
+        jButtonSetScale.setText("Set Scale");
+        jButtonSetScale.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonSetScaleActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -714,39 +803,49 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 884, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 928, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButtonXPosView)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonXNegView)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonYPosView)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonYNegView)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonZPosView)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonZNegView)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jRadioButtonRotXY)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jRadioButtonRotZ)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jRadioButtonTranXY)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jRadioButtonTranZ)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 77, Short.MAX_VALUE)
-                        .addComponent(jCheckBoxPre)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jRadioButtonRotXY)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jRadioButtonRotZ)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jRadioButtonTranXY)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jRadioButtonTranZ))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jButtonXPosView)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButtonXNegView)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButtonYPosView)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButtonYNegView)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButtonZPosView)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButtonZNegView)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(77, 77, 77)
+                                .addComponent(jCheckBoxPre))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(23, 23, 23)
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jTextFieldDistScale, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButtonSetScale)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 469, Short.MAX_VALUE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 457, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jRadioButtonRotXY)
@@ -763,7 +862,13 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
                         .addComponent(jButtonYPosView)
                         .addComponent(jButtonYNegView)
                         .addComponent(jButtonZPosView)
-                        .addComponent(jButtonZNegView))))
+                        .addComponent(jButtonZNegView))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jTextFieldDistScale)
+                            .addComponent(jLabel2)
+                            .addComponent(jButtonSetScale))
+                        .addContainerGap())))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -781,7 +886,8 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
     /**
      * Set the value of dragEnum
      *
-     * @param _dragEnum which coordinate(s) should be moved when a mouse is dragged
+     * @param _dragEnum which coordinate(s) should be moved when a mouse is
+     * dragged
      */
     public void setDragEnum(final View3DDragEnum _dragEnum) {
         switch (_dragEnum) {
@@ -916,7 +1022,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             if (dragEnum != View3DDragEnum.TRAN_Z) {
                 this.setDragEnum(View3DDragEnum.TRAN_Z);
             }
-        } 
+        }
 //        else if (this.jRadioButtonScale.isSelected()) {
 //            if (dragEnum != View3DDragEnum.SCALE) {
 //                this.setDragEnum(View3DDragEnum.SCALE);
@@ -1143,6 +1249,28 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         });
     }//GEN-LAST:event_jCheckBoxPreActionPerformed
 
+    private double distScale = 100.0;
+
+    public double getDistScale() {
+        return distScale;
+    }
+
+    public void setDistScale(double distScale) {
+        this.distScale = distScale;
+        Platform.runLater(this::clear);
+        Platform.runLater(runUpdateTracsList);
+    }
+    
+    private void jTextFieldDistScaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldDistScaleActionPerformed
+        double newDistScale = Double.valueOf(this.jTextFieldDistScale.getText());
+        this.setDistScale(newDistScale);
+    }//GEN-LAST:event_jTextFieldDistScaleActionPerformed
+
+    private void jButtonSetScaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSetScaleActionPerformed
+        double newDistScale = Double.valueOf(this.jTextFieldDistScale.getText());
+        this.setDistScale(newDistScale);
+    }//GEN-LAST:event_jButtonSetScaleActionPerformed
+
     private void updateFxPanelSize(Dimension prefSize, Dimension sz) {
         fxpanel.setPreferredSize(this.jPanel1.getPreferredSize());
         fxpanel.setSize(this.jPanel1.getSize());
@@ -1170,6 +1298,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroupDragEnum;
+    private javax.swing.JButton jButtonSetScale;
     private javax.swing.JButton jButtonXNegView;
     private javax.swing.JButton jButtonXPosView;
     private javax.swing.JButton jButtonYNegView;
@@ -1178,10 +1307,12 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
     private javax.swing.JButton jButtonZPosView;
     private javax.swing.JCheckBox jCheckBoxPre;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JRadioButton jRadioButtonRotXY;
     private javax.swing.JRadioButton jRadioButtonRotZ;
     private javax.swing.JRadioButton jRadioButtonTranXY;
     private javax.swing.JRadioButton jRadioButtonTranZ;
+    private javax.swing.JTextField jTextFieldDistScale;
     // End of variables declaration//GEN-END:variables
 }

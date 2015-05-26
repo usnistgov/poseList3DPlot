@@ -17,6 +17,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import rcs.posemath.PmPose;
+import rcs.posemath.PmRpy;
 
 /**
  *
@@ -73,6 +74,7 @@ public class MainJFrame extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
+        jMenuItemClearAll = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
 
         FormListener formListener = new FormListener();
@@ -80,11 +82,14 @@ public class MainJFrame extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jMenu1.setText("File");
-        jMenu1.addActionListener(formListener);
 
         jMenuItem1.setText("Open ...");
         jMenuItem1.addActionListener(formListener);
         jMenu1.add(jMenuItem1);
+
+        jMenuItemClearAll.setText("Clear All");
+        jMenuItemClearAll.addActionListener(formListener);
+        jMenu1.add(jMenuItemClearAll);
 
         jMenuBar1.add(jMenu1);
 
@@ -121,8 +126,8 @@ public class MainJFrame extends javax.swing.JFrame {
             if (evt.getSource() == jMenuItem1) {
                 MainJFrame.this.jMenuItem1ActionPerformed(evt);
             }
-            else if (evt.getSource() == jMenu1) {
-                MainJFrame.this.jMenu1ActionPerformed(evt);
+            else if (evt.getSource() == jMenuItemClearAll) {
+                MainJFrame.this.jMenuItemClearAllActionPerformed(evt);
             }
         }
     }// </editor-fold>//GEN-END:initComponents
@@ -138,13 +143,22 @@ public class MainJFrame extends javax.swing.JFrame {
                 String tok[] = line.split(options.delim);
                 TrackPoint tp = new TrackPoint();
                 if (options.X_INDEX >= 0 && options.X_INDEX < tok.length) {
-                    tp.x = Double.valueOf(tok[options.X_INDEX]);
+                    tp.x = options.DISTANCE_SCALE * Double.valueOf(tok[options.X_INDEX]);
                 }
                 if (options.Y_INDEX >= 0 && options.Y_INDEX < tok.length) {
-                    tp.y = Double.valueOf(tok[options.Y_INDEX]);
+                    tp.y = options.DISTANCE_SCALE * Double.valueOf(tok[options.Y_INDEX]);
                 }
                 if (options.Z_INDEX >= 0 && options.Z_INDEX < tok.length) {
-                    tp.z = Double.valueOf(tok[options.Z_INDEX]);
+                    tp.z = options.DISTANCE_SCALE * Double.valueOf(tok[options.Z_INDEX]);
+                }
+                if (options.ROLL_INDEX >= 0 && options.ROLL_INDEX < tok.length) {
+                    tp.setRoll(Math.toRadians(Double.valueOf(tok[options.ROLL_INDEX])));
+                }
+                if (options.PITCH_INDEX >= 0 && options.PITCH_INDEX < tok.length) {
+                    tp.setPitch(Math.toRadians(Double.valueOf(tok[options.PITCH_INDEX])));
+                }
+                if (options.YAW_INDEX >= 0 && options.YAW_INDEX < tok.length) {
+                    tp.setYaw(Math.toRadians(Double.valueOf(tok[options.YAW_INDEX])));
                 }
                 track.getData().add(tp);
             }
@@ -201,15 +215,23 @@ public class MainJFrame extends javax.swing.JFrame {
 //                    data.add(tp);
 //                }
 //                track.setData(data);
+        if(null == data || data.size() < 1) {
+            return;
+        }
         track.currentPoint = data.get(data.size() - 1);
         track.cur_time_index = data.size() - 1;
         trackList.add(track);
         this.view3DPlotJPanel1.setTracksList(tracksList);
     }
 
-    private void jMenu1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jMenu1ActionPerformed
+    private void jMenuItemClearAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemClearAllActionPerformed
+       List<List<Track>> tracksList = this.view3DPlotJPanel1.getTracksList();
+       if(null == tracksList) {
+            tracksList.clear();
+       }
+       this.view3DPlotJPanel1.setTracksList(null);
+       
+    }//GEN-LAST:event_jMenuItemClearAllActionPerformed
 
     /**
      * @param args the command line arguments
@@ -260,6 +282,7 @@ public class MainJFrame extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItemClearAll;
     private com.github.wshackle.poselist3dplot.View3DPlotJPanel view3DPlotJPanel1;
     // End of variables declaration//GEN-END:variables
 }
