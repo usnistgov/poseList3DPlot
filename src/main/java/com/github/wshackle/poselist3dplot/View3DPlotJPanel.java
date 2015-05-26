@@ -456,7 +456,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             sphere.setTranslateZ(tp.z * distScale);
             sphere.setMaterial(ptMaterial);
             trackGroup.getChildren().addAll(sphere, cyl);
-            if (null != tp.getRpy()) {
+            if (null != tp.getRpy() && this.showRotationFrames) {
                 Group axisGroup = createAxis(15.0);
 //                axisGroup.setTranslateX(tp.x * 100.0);
 //                axisGroup.setTranslateY(tp.y * 100.0);
@@ -464,9 +464,9 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
                 PmRpy rpy = tp.getRpy();
                 axisGroup.getTransforms().addAll(
                         new Translate(tp.x * distScale, tp.y * distScale, tp.z *distScale),
-                        new Rotate(Math.toDegrees(rpy.r), Rotate.X_AXIS),
+                        new Rotate(Math.toDegrees(rpy.y), Rotate.Z_AXIS),
                         new Rotate(Math.toDegrees(rpy.p), Rotate.Y_AXIS),
-                        new Rotate(Math.toDegrees(rpy.y), Rotate.Z_AXIS)
+                        new Rotate(Math.toDegrees(rpy.r), Rotate.X_AXIS)
                 );
                 trackGroup.getChildren().addAll(axisGroup);
             }
@@ -659,6 +659,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         jLabel2 = new javax.swing.JLabel();
         jTextFieldDistScale = new javax.swing.JTextField();
         jButtonSetScale = new javax.swing.JButton();
+        jCheckBoxShowRotationFrames = new javax.swing.JCheckBox();
 
         jPanel1.setBackground(new java.awt.Color(34, 228, 32));
         jPanel1.setBorder(new javax.swing.border.MatteBorder(null));
@@ -796,6 +797,13 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             }
         });
 
+        jCheckBoxShowRotationFrames.setText("Show Rotation Frames");
+        jCheckBoxShowRotationFrames.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxShowRotationFramesActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -803,7 +811,6 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 928, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -827,18 +834,22 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButtonZPosView)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButtonZNegView)))
+                                .addComponent(jButtonZNegView)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jCheckBoxShowRotationFrames)))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(77, 77, 77)
-                                .addComponent(jCheckBoxPre))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(23, 23, 23)
+                                .addGap(18, 18, 18)
                                 .addComponent(jLabel2)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jTextFieldDistScale, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButtonSetScale)))))
+                                .addComponent(jButtonSetScale)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jCheckBoxPre))))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 1022, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -862,7 +873,8 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
                         .addComponent(jButtonYPosView)
                         .addComponent(jButtonYNegView)
                         .addComponent(jButtonZPosView)
-                        .addComponent(jButtonZNegView))
+                        .addComponent(jButtonZNegView)
+                        .addComponent(jCheckBoxShowRotationFrames))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jTextFieldDistScale)
@@ -1271,30 +1283,48 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         this.setDistScale(newDistScale);
     }//GEN-LAST:event_jButtonSetScaleActionPerformed
 
-    private void updateFxPanelSize(Dimension prefSize, Dimension sz) {
-        fxpanel.setPreferredSize(this.jPanel1.getPreferredSize());
-        fxpanel.setSize(this.jPanel1.getSize());
+    
+    private boolean showRotationFrames = false;
+
+    public boolean isShowRotationFrames() {
+        return showRotationFrames;
     }
 
-    private void updateSizes() {
-//        if(this.jPanel1.getSize().width > this.jPanel1.getPreferredSize().width
-//                && this.jPanel1.getSize().height > this.jPanel1.getPreferredSize().height) {
-//            this.jPanel1.setPreferredSize(this.jPanel1.getSize());
-//        }
-//        this.jPanel1.remove(this.fxpanel);
-//        final Dimension prefSize = this.jPanel1.getPreferredSize();
-//        System.out.println("prefSize = " + prefSize);
-//        final Dimension sz = this.jPanel1.getSize();
-//        System.out.println("sz = " + sz);
-//        //this.jPanel1.add(this.fxpanel);
-//        Platform.runLater(new Runnable() {
-//
-//            @Override
-//            public void run() {
-//                updateFxPanelSize(prefSize,sz);
-//            }
-//        });
+    public void setShowRotationFrames(boolean showRotationFrames) {
+        this.showRotationFrames = showRotationFrames;
+        Platform.runLater(this::clear);
+        Platform.runLater(runUpdateTracsList);
     }
+    
+    
+    private void jCheckBoxShowRotationFramesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxShowRotationFramesActionPerformed
+        this.setShowRotationFrames(this.jCheckBoxShowRotationFrames.isSelected());
+    }//GEN-LAST:event_jCheckBoxShowRotationFramesActionPerformed
+
+//    private void updateFxPanelSize(Dimension prefSize, Dimension sz) {
+//        fxpanel.setPreferredSize(this.jPanel1.getPreferredSize());
+//        fxpanel.setSize(this.jPanel1.getSize());
+//    }
+
+//    private void updateSizes() {
+////        if(this.jPanel1.getSize().width > this.jPanel1.getPreferredSize().width
+////                && this.jPanel1.getSize().height > this.jPanel1.getPreferredSize().height) {
+////            this.jPanel1.setPreferredSize(this.jPanel1.getSize());
+////        }
+////        this.jPanel1.remove(this.fxpanel);
+////        final Dimension prefSize = this.jPanel1.getPreferredSize();
+////        System.out.println("prefSize = " + prefSize);
+////        final Dimension sz = this.jPanel1.getSize();
+////        System.out.println("sz = " + sz);
+////        //this.jPanel1.add(this.fxpanel);
+////        Platform.runLater(new Runnable() {
+////
+////            @Override
+////            public void run() {
+////                updateFxPanelSize(prefSize,sz);
+////            }
+////        });
+//    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroupDragEnum;
@@ -1306,6 +1336,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
     private javax.swing.JButton jButtonZNegView;
     private javax.swing.JButton jButtonZPosView;
     private javax.swing.JCheckBox jCheckBoxPre;
+    private javax.swing.JCheckBox jCheckBoxShowRotationFrames;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
