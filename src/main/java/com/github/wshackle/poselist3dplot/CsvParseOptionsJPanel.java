@@ -41,7 +41,6 @@ public class CsvParseOptionsJPanel extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jPanelSettings = new javax.swing.JPanel();
-        jTextFieldDistanceScale = new javax.swing.JTextField();
         jComboBoxZIndex = new javax.swing.JComboBox();
         jLabel9 = new javax.swing.JLabel();
         jComboBoxRollIndex = new javax.swing.JComboBox();
@@ -49,7 +48,6 @@ public class CsvParseOptionsJPanel extends javax.swing.JPanel {
         jComboBoxYawIndex = new javax.swing.JComboBox();
         jLabel8 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
         jComboBoxXIndex = new javax.swing.JComboBox();
         jTextFieldFileDelimiter = new javax.swing.JTextField();
@@ -86,8 +84,6 @@ public class CsvParseOptionsJPanel extends javax.swing.JPanel {
         ));
         jScrollPane1.setViewportView(jTable1);
 
-        jTextFieldDistanceScale.setText("1.0");
-
         jComboBoxZIndex.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" }));
 
         jLabel9.setText("Yaw Index:");
@@ -106,8 +102,6 @@ public class CsvParseOptionsJPanel extends javax.swing.JPanel {
         jLabel8.setText("Z Index:");
 
         jLabel5.setText("Y Index:");
-
-        jLabel6.setText("Distance Scale:");
 
         jLabel14.setText("File Delimiter: ");
 
@@ -138,47 +132,38 @@ public class CsvParseOptionsJPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(jPanelSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanelSettingsLayout.createSequentialGroup()
+                        .addComponent(jLabel14)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextFieldFileDelimiter, javax.swing.GroupLayout.PREFERRED_SIZE, 254, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jCheckBoxTabDelim)
+                        .addContainerGap(193, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelSettingsLayout.createSequentialGroup()
+                        .addComponent(jLabel8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jComboBoxZIndex, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel9)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jComboBoxYawIndex, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanelSettingsLayout.createSequentialGroup()
                         .addGroup(jPanelSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanelSettingsLayout.createSequentialGroup()
-                                .addComponent(jLabel14)
+                                .addComponent(jLabel5)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextFieldFileDelimiter, javax.swing.GroupLayout.PREFERRED_SIZE, 254, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jComboBoxYIndex, 0, 215, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jCheckBoxTabDelim))
+                                .addComponent(jLabel10))
                             .addGroup(jPanelSettingsLayout.createSequentialGroup()
-                                .addComponent(jLabel6)
+                                .addComponent(jLabel4)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextFieldDistanceScale, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelSettingsLayout.createSequentialGroup()
+                                .addComponent(jComboBoxXIndex, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel7)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanelSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(jPanelSettingsLayout.createSequentialGroup()
-                                .addComponent(jLabel8)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jComboBoxZIndex, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel9)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jComboBoxYawIndex, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelSettingsLayout.createSequentialGroup()
-                                .addGroup(jPanelSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanelSettingsLayout.createSequentialGroup()
-                                        .addComponent(jLabel5)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jComboBoxYIndex, 0, 215, Short.MAX_VALUE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jLabel10))
-                                    .addGroup(jPanelSettingsLayout.createSequentialGroup()
-                                        .addComponent(jLabel4)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jComboBoxXIndex, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jLabel7)))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanelSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jComboBoxPitchIndex, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jComboBoxRollIndex, 0, 227, Short.MAX_VALUE))))
-                        .addGap(0, 0, 0))))
+                            .addComponent(jComboBoxPitchIndex, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jComboBoxRollIndex, 0, 227, Short.MAX_VALUE)))))
         );
 
         jPanelSettingsLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jComboBoxXIndex, jComboBoxYIndex, jComboBoxZIndex});
@@ -193,11 +178,7 @@ public class CsvParseOptionsJPanel extends javax.swing.JPanel {
                     .addComponent(jLabel14)
                     .addComponent(jTextFieldFileDelimiter, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jCheckBoxTabDelim))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanelSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6)
-                    .addComponent(jTextFieldDistanceScale, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(0, 0, 0)
                 .addGroup(jPanelSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jComboBoxXIndex, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4)
@@ -217,8 +198,6 @@ public class CsvParseOptionsJPanel extends javax.swing.JPanel {
                     .addComponent(jComboBoxYawIndex, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-
-        jPanelSettingsLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jTextFieldDistanceScale, jTextFieldFileDelimiter});
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -241,7 +220,7 @@ public class CsvParseOptionsJPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanelSettings, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 177, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonOk)
@@ -317,18 +296,6 @@ public class CsvParseOptionsJPanel extends javax.swing.JPanel {
 
     private void jButtonOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonOkActionPerformed
         try {
-            options.DISTANCE_SCALE = Double.valueOf(this.jTextFieldDistanceScale.getText());
-//            options.TIME_SCALE = Double.valueOf(this.jTextFieldTimeScale.getText());
-//            if (!this.jCheckBoxUseTime.isSelected()) {
-//                options.TIME_INDEX = -1;
-//            } else {
-//                options.TIME_INDEX = this.jComboBoxTimeIndex.getSelectedIndex();
-//            }
-//            if (!this.jCheckBoxUseName.isSelected()) {
-//                options.NAME_INDEX = -1;
-//            } else {
-//                options.NAME_INDEX = this.jComboBoxNameIndex.getSelectedIndex();
-//            }
             options.X_INDEX = this.jComboBoxXIndex.getSelectedIndex()-1;
             options.Y_INDEX = this.jComboBoxYIndex.getSelectedIndex()-1;
             options.Z_INDEX = this.jComboBoxZIndex.getSelectedIndex()-1;
@@ -386,89 +353,13 @@ public class CsvParseOptionsJPanel extends javax.swing.JPanel {
         return this.options;
     }
 
-    public void setParseOptions(CsvParseOptions o) {
-//        this.jTextFieldTimeOffset.setText(String.format("%.4g", o.TIME_OFFSET));
-//        this.jTextFieldTimeScale.setText(String.format("%.4g", o.TIME_SCALE));
-        this.jTextFieldDistanceScale.setText(String.format("%.4g", o.DISTANCE_SCALE));
-//        if (o.TIME_INDEX < this.jComboBoxTimeIndex.getItemCount()) {
-//            this.jComboBoxTimeIndex.setSelectedIndex(o.TIME_INDEX);
-//            this.jComboBoxTimeIndex.setEnabled(true);
-//            this.jCheckBoxUseTime.setSelected(true);
-//        } else {
-//            this.jComboBoxTimeIndex.setEnabled(false);
-//            this.jCheckBoxUseTime.setSelected(false);
-//        }
-
-//        if (o.NAME_INDEX >= 0) {
-//            if (o.NAME_INDEX < this.jComboBoxNameIndex.getItemCount()) {
-//                this.jComboBoxNameIndex.setSelectedIndex(o.NAME_INDEX);
-//            }
-//            this.jComboBoxNameIndex.setEnabled(true);
-//            this.jCheckBoxUseName.setSelected(true);
-//        } else {
-//            this.jComboBoxNameIndex.setEnabled(false);
-//            this.jCheckBoxUseName.setSelected(false);
-//        }
-        
+    public void setParseOptions(CsvParseOptions o) {        
         guardedSetComboBoxIndex(o.X_INDEX, this.jComboBoxXIndex);
         guardedSetComboBoxIndex(o.Y_INDEX, this.jComboBoxYIndex);
         guardedSetComboBoxIndex(o.Z_INDEX, this.jComboBoxZIndex);
         guardedSetComboBoxIndex(o.ROLL_INDEX, this.jComboBoxRollIndex);
         guardedSetComboBoxIndex(o.PITCH_INDEX, this.jComboBoxPitchIndex);
         guardedSetComboBoxIndex(o.YAW_INDEX, this.jComboBoxYawIndex);
-
-//        if (o.VX_INDEX >= 0) {
-//            if (o.VX_INDEX < this.jComboBoxVXIndex.getItemCount()) {
-//                this.jComboBoxVXIndex.setSelectedIndex(o.VX_INDEX);
-//            }
-//            this.jComboBoxVXIndex.setEnabled(true);
-//            this.jCheckBoxUseVX.setSelected(true);
-//        } else {
-//            this.jComboBoxVXIndex.setEnabled(false);
-//            this.jCheckBoxUseVX.setSelected(false);
-//        }
-//
-//        if (o.VY_INDEX >= 0) {
-//            if (o.VY_INDEX < this.jComboBoxVYIndex.getItemCount()) {
-//                this.jComboBoxVYIndex.setSelectedIndex(o.VY_INDEX);
-//            }
-//            this.jComboBoxVYIndex.setEnabled(true);
-//            this.jCheckBoxUseVY.setSelected(true);
-//        } else {
-//            this.jComboBoxVYIndex.setEnabled(false);
-//            this.jCheckBoxUseVY.setSelected(false);
-//        }
-//        if (o.VZ_INDEX >= 0) {
-//            if (o.VZ_INDEX < this.jComboBoxVZIndex.getItemCount()) {
-//                this.jComboBoxVZIndex.setSelectedIndex(o.VZ_INDEX);
-//            }
-//            this.jComboBoxVZIndex.setEnabled(true);
-//            this.jCheckBoxUseVZ.setSelected(true);
-//        } else {
-//            this.jComboBoxVZIndex.setEnabled(false);
-//            this.jCheckBoxUseVZ.setSelected(false);
-//        }
-//
-//        if (o.CONFIDENCE_INDEX >= 0) {
-//            if (o.CONFIDENCE_INDEX < this.jComboBoxConfidenceIndex.getItemCount()) {
-//                this.jComboBoxConfidenceIndex.setSelectedIndex(o.CONFIDENCE_INDEX);
-//            }
-//            this.jComboBoxConfidenceIndex.setEnabled(true);
-//            this.jCheckBoxUseConfidence.setSelected(true);
-//        } else {
-//            this.jComboBoxConfidenceIndex.setEnabled(false);
-//            this.jCheckBoxUseConfidence.setSelected(false);
-//        }
-//        if (o.RADIUS_INDEX >= 0) {
-//            if (o.RADIUS_INDEX < this.jComboBoxRadiusIndex.getItemCount()) {
-//                this.jComboBoxRadiusIndex.setSelectedIndex(o.RADIUS_INDEX);
-//            }
-//            this.jComboBoxRadiusIndex.setEnabled(true);
-//            this.jCheckBoxUseRadius.setSelected(true);
-//        } else {
-//            this.jComboBoxRadiusIndex.setEnabled(false);
-//            this.jCheckBoxUseRadius.setSelected(false);
-//        }
         this.options = o;
     }
 
@@ -906,14 +797,12 @@ public class CsvParseOptionsJPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanelSettings;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextFieldDistanceScale;
     private javax.swing.JTextField jTextFieldFileDelimiter;
     // End of variables declaration//GEN-END:variables
 }

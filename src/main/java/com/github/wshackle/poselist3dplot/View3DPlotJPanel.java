@@ -21,13 +21,17 @@
 package com.github.wshackle.poselist3dplot;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.event.MouseListener;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.ToDoubleFunction;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.DepthTest;
@@ -45,6 +49,7 @@ import javafx.scene.shape.Sphere;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
+import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javax.swing.SwingUtilities;
 import rcs.posemath.PmRpy;
@@ -113,8 +118,8 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
                 }
             });
             // create JavaFX scene
-            Platform.runLater(new Runnable() {
-                public void run() {
+            java.awt.EventQueue.invokeLater(() -> {
+                Platform.runLater(() -> {
                     initFxScene();
                     SwingUtilities.invokeLater(new Runnable() {
 
@@ -123,9 +128,8 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
                             setDragEnum(View3DDragEnum.ROT_XY);
                         }
                     });
-                }
+                });
             });
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -159,8 +163,12 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
     private java.awt.event.MouseEvent lastSwingJpanelMouseEvent = null;
 
     private void initFxScene() {
-        fxpanel.setScene(this.create3DScene(this.jPanel1.getPreferredSize().width,
-                this.jPanel1.getPreferredSize().height));
+        fxpanel.setScene(
+                this.create3DScene(
+                        Math.max(this.jPanel1.getPreferredSize().width, this.jPanel1.getSize().width),
+                        Math.max(this.jPanel1.getPreferredSize().height, this.jPanel1.getSize().height)
+                )
+        );
     }
 
     Translate t = new Translate();
@@ -176,6 +184,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
     Rotate rzmain = new Rotate(0, Rotate.Z_AXIS);
 
     Node contentGroup = null;
+    private Translate centerWinTranslate = new Translate();
 
     private Scene create3DScene(int w, int h) {
         Group root = new Group();
@@ -184,8 +193,10 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         scene3D = new Scene(root, w, h, true);
         camera = new PerspectiveCamera();
         scene3D.setCamera(camera);
+        centerWinTranslate.setX(w/2);
+        centerWinTranslate.setY(h/2);
         root.getTransforms().addAll(
-                new Translate(400 / 2, 400 / 2),
+                centerWinTranslate,
                 new Rotate(180, Rotate.X_AXIS)
         );
         contentGroup = this.create3dContent();
@@ -344,6 +355,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             ry.setAngle(ry.getAngle() + mouseDeltaX * 0.75);
             rx.setAngle(rx.getAngle() + mouseDeltaY * 0.75);
         }
+        this.updateTransformsTextfield();
 //        System.out.println("contentGroup.getTransforms() = " + contentGroup.getTransforms());
     }
 
@@ -435,7 +447,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         for (int i = start_index; i < track.getData().size() && i < track.cur_time_index; i++) {
             TrackPoint tp = track.getData().get(i);
             double dist = last_tp.distance(tp);
-            if (dist < distScale/1000.0) {
+            if (dist < distScale / 1000.0) {
                 continue;
             }
 //            double radius = Math.min(dist * distScale / 2.0, 1.0);
@@ -447,7 +459,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
                     new Translate(last_tp.x * distScale, last_tp.y * distScale, last_tp.z * distScale),
                     new Rotate(Math.toDegrees(Math.atan2(tp.x - last_tp.x, tp.z - last_tp.z)), Rotate.Y_AXIS),
                     new Rotate(Math.toDegrees(Math.acos((tp.y - last_tp.y) / dist)), Rotate.X_AXIS),
-                    new Translate(0, dist * distScale/2.0, 0)
+                    new Translate(0, dist * distScale / 2.0, 0)
             );
             cyl.setMaterial(lineMaterial);
             Sphere sphere = new Sphere(5.0);
@@ -463,7 +475,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
 //                axisGroup.setTranslateZ(tp.z * 100.0);
                 PmRpy rpy = tp.getRpy();
                 axisGroup.getTransforms().addAll(
-                        new Translate(tp.x * distScale, tp.y * distScale, tp.z *distScale),
+                        new Translate(tp.x * distScale, tp.y * distScale, tp.z * distScale),
                         new Rotate(Math.toDegrees(rpy.y), Rotate.Z_AXIS),
                         new Rotate(Math.toDegrees(rpy.p), Rotate.Y_AXIS),
                         new Rotate(Math.toDegrees(rpy.r), Rotate.X_AXIS)
@@ -478,7 +490,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         if (null == lt) {
             return;
         }
-        Set<Group> matchedGroups  = new HashSet<>();
+        Set<Group> matchedGroups = new HashSet<>();
         for (Track track : lt) {
             Group trackGroup = this.trackGroupMap.get(track);
             if (trackGroup == null) {
@@ -502,14 +514,14 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             matchedGroups.add(curPosGroup);
             updateTrack(trackGroup, curPosGroup, track);
         }
-        for(Entry<Track,Group> entry : this.trackGroupMap.entrySet()) {
-            if(!matchedGroups.contains(entry.getValue())) {
+        for (Entry<Track, Group> entry : this.trackGroupMap.entrySet()) {
+            if (!matchedGroups.contains(entry.getValue())) {
                 entry.getValue().getChildren().clear();
                 this.trackGroupMap.remove(entry.getKey());
             }
         }
-        for(Entry<Track,Group> entry : this.trackCurPosGroupMap.entrySet()) {
-            if(!matchedGroups.contains(entry.getValue())) {
+        for (Entry<Track, Group> entry : this.trackCurPosGroupMap.entrySet()) {
+            if (!matchedGroups.contains(entry.getValue())) {
                 entry.getValue().getChildren().clear();
                 this.trackCurPosGroupMap.remove(entry.getKey());
             }
@@ -521,7 +533,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             clear();
             return;
         }
-        Set<Group> matchedGroups  = new HashSet<>();
+        Set<Group> matchedGroups = new HashSet<>();
         for (List<Track> lt : this.TracksList) {
             Group g = trackListGroupMap.get(lt);
             if (null == g) {
@@ -535,8 +547,8 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             this.updateTrackList(g, lt);
             matchedGroups.add(g);
         }
-        for(Entry<List<Track>,Group> entry : this.trackListGroupMap.entrySet()) {
-            if(!matchedGroups.contains(entry.getValue())) {
+        for (Entry<List<Track>, Group> entry : this.trackListGroupMap.entrySet()) {
+            if (!matchedGroups.contains(entry.getValue())) {
                 entry.getValue().getChildren().clear();
                 this.trackListGroupMap.remove(entry.getKey());
             }
@@ -556,6 +568,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             g.getChildren().clear();
         }
         trackCurPosGroupMap.clear();
+        xNegView();
     }
 
     HashMap<Track, Group> trackGroupMap = new HashMap<>();
@@ -660,11 +673,23 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         jTextFieldDistScale = new javax.swing.JTextField();
         jButtonSetScale = new javax.swing.JButton();
         jCheckBoxShowRotationFrames = new javax.swing.JCheckBox();
+        jTextFieldTransforms = new javax.swing.JTextField();
+
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                formComponentResized(evt);
+            }
+        });
 
         jPanel1.setBackground(new java.awt.Color(34, 228, 32));
         jPanel1.setBorder(new javax.swing.border.MatteBorder(null));
         jPanel1.setMinimumSize(new java.awt.Dimension(400, 400));
         jPanel1.setPreferredSize(new java.awt.Dimension(400, 400));
+        jPanel1.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                jPanel1ComponentResized(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -674,7 +699,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 455, Short.MAX_VALUE)
+            .addGap(0, 440, Short.MAX_VALUE)
         );
 
         jButtonZPosView.setText("Z+ View");
@@ -783,14 +808,14 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
 
         jLabel2.setText("Distance Scale:");
 
-        jTextFieldDistScale.setText("100.0    ");
+        jTextFieldDistScale.setText("1.0");
         jTextFieldDistScale.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextFieldDistScaleActionPerformed(evt);
             }
         });
 
-        jButtonSetScale.setText("Set Scale");
+        jButtonSetScale.setText("Auto Set Scale");
         jButtonSetScale.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonSetScaleActionPerformed(evt);
@@ -812,7 +837,31 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(jButtonXPosView)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonXNegView)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonYPosView)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonYNegView)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonZPosView)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonZNegView)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jCheckBoxShowRotationFrames)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextFieldDistScale, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonSetScale)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jCheckBoxPre)
+                        .addGap(0, 10, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 1299, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel1)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -822,49 +871,25 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jRadioButtonTranXY)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jRadioButtonTranZ))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jButtonXPosView)
+                                .addComponent(jRadioButtonTranZ)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButtonXNegView)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButtonYPosView)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButtonYNegView)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButtonZPosView)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButtonZNegView)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jCheckBoxShowRotationFrames)))
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(18, 18, 18)
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextFieldDistScale, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButtonSetScale)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jCheckBoxPre))))
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 1022, Short.MAX_VALUE))
-                .addContainerGap())
+                                .addComponent(jTextFieldTransforms)))
+                        .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 457, Short.MAX_VALUE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 442, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jRadioButtonRotXY)
-                    .addComponent(jRadioButtonRotZ)
-                    .addComponent(jRadioButtonTranXY)
-                    .addComponent(jRadioButtonTranZ)
-                    .addComponent(jCheckBoxPre)
-                    .addComponent(jLabel1))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jRadioButtonRotXY)
+                        .addComponent(jRadioButtonRotZ)
+                        .addComponent(jRadioButtonTranXY)
+                        .addComponent(jRadioButtonTranZ)
+                        .addComponent(jLabel1))
+                    .addComponent(jTextFieldTransforms, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButtonXPosView)
@@ -874,13 +899,11 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
                         .addComponent(jButtonYNegView)
                         .addComponent(jButtonZPosView)
                         .addComponent(jButtonZNegView)
-                        .addComponent(jCheckBoxShowRotationFrames))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextFieldDistScale)
-                            .addComponent(jLabel2)
-                            .addComponent(jButtonSetScale))
-                        .addContainerGap())))
+                        .addComponent(jCheckBoxShowRotationFrames)
+                        .addComponent(jLabel2)
+                        .addComponent(jTextFieldDistScale)
+                        .addComponent(jButtonSetScale)
+                        .addComponent(jCheckBoxPre))))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -951,10 +974,41 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
     }
 
     private void resetTransforms() {
-        int sz = contentGroup.getTransforms().size();
-        contentGroup.getTransforms().remove(0, sz - 1);
+        contentGroup.getTransforms().clear();
         contentGroup.getTransforms().addAll(tmain, rxmain, rymain, rzmain);
         setupTransforms(this.dragEnum);
+    }
+
+    private static Optional<String> transformToOptString(Transform transform) {
+        if (transform instanceof Translate) {
+            Translate t = (Translate) transform;
+            if (Math.max(Math.max(Math.abs(t.getX()), Math.abs(t.getY())), Math.abs(t.getZ())) < Double.MIN_NORMAL) {
+                return Optional.empty();
+            }
+            return Optional.of(String.format("T(%+.3g,%+.3g,%+.3g)", t.getX(), t.getY(), t.getZ()));
+        } else if (transform instanceof Rotate) {
+            Rotate r = (Rotate) transform;
+            if (Math.abs(r.getAngle()) < Double.MIN_NORMAL) {
+                return Optional.empty();
+            }
+            if (r.getAxis().equals(Rotate.X_AXIS)) {
+                return Optional.of(String.format("Rx(%+.3g)", r.getAngle()));
+            } else if (r.getAxis().equals(Rotate.Y_AXIS)) {
+                return Optional.of(String.format("Ry(%+.3g)", r.getAngle()));
+            } else if (r.getAxis().equals(Rotate.Z_AXIS)) {
+                return Optional.of(String.format("Rz(%+.3g)", r.getAngle()));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private String transformsToString(List<? extends Transform> transforms) {
+
+        return transforms
+                .stream()
+                .map(View3DPlotJPanel::transformToOptString)
+                .flatMap((x) -> x.map(Stream::of).orElseGet(Stream::empty))
+                .collect(Collectors.joining("*"));
     }
 
     private void setupTransforms(View3DDragEnum _dragEnum) {
@@ -1010,6 +1064,14 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
                 }
                 break;
         }
+        updateTransformsTextfield();
+    }
+
+    private void updateTransformsTextfield() {
+        final List<Transform> transforms = this.contentGroup.getTransforms();
+        java.awt.EventQueue.invokeLater(() -> {
+            this.jTextFieldTransforms.setText(this.transformsToString(transforms));
+        });
 //        System.out.println("this.contentGroup.getTransforms() = " + this.contentGroup.getTransforms());
     }
 
@@ -1114,25 +1176,6 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
 
     }
 
-    private void xPosView() {
-        t.setX(0);
-        t.setY(0);
-        t.setZ(0);
-        rx.setAngle(0);
-        ry.setAngle(0);
-        rz.setAngle(0);
-        s.setX(1);
-        s.setY(1);
-        s.setZ(1);
-        tmain.setX(0);
-        tmain.setY(0);
-        tmain.setZ(0);
-        rxmain.setAngle(0);
-        rymain.setAngle(90);
-        rzmain.setAngle(0);
-        resetTransforms();
-    }
-
     private void xNegView() {
         t.setX(0);
         t.setY(0);
@@ -1146,9 +1189,28 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         tmain.setX(0);
         tmain.setY(0);
         tmain.setZ(0);
-        rxmain.setAngle(0);
-        rymain.setAngle(-90);
-        rzmain.setAngle(0);
+        rxmain.setAngle(-90);
+        rymain.setAngle(0);
+        rzmain.setAngle(-90);
+        resetTransforms();
+    }
+
+    private void xPosView() {
+        t.setX(0);
+        t.setY(0);
+        t.setZ(0);
+        rx.setAngle(0);
+        ry.setAngle(0);
+        rz.setAngle(0);
+        s.setX(1);
+        s.setY(1);
+        s.setZ(1);
+        tmain.setX(0);
+        tmain.setY(0);
+        tmain.setZ(0);
+        rxmain.setAngle(-90);
+        rymain.setAngle(0);
+        rzmain.setAngle(90);
         resetTransforms();
     }
 
@@ -1272,18 +1334,62 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         Platform.runLater(this::clear);
         Platform.runLater(runUpdateTracsList);
     }
-    
+
     private void jTextFieldDistScaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldDistScaleActionPerformed
         double newDistScale = Double.valueOf(this.jTextFieldDistScale.getText());
-        this.setDistScale(newDistScale);
+        this.setDistScale(newDistScale / 100.0);
     }//GEN-LAST:event_jTextFieldDistScaleActionPerformed
 
+    private <T> double minStream(Stream<T> stream, ToDoubleFunction<T> mapper) {
+        return stream
+                .mapToDouble(mapper)
+                .min()
+                .orElse(Double.POSITIVE_INFINITY);
+    }
+
+    private <T> double maxStream(Stream<T> stream, ToDoubleFunction<T> mapper) {
+        return stream
+                .mapToDouble(mapper)
+                .max()
+                .orElse(Double.NEGATIVE_INFINITY);
+    }
+
     private void jButtonSetScaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSetScaleActionPerformed
-        double newDistScale = Double.valueOf(this.jTextFieldDistScale.getText());
-        this.setDistScale(newDistScale);
+        autoSetScale();
     }//GEN-LAST:event_jButtonSetScaleActionPerformed
 
-    
+    public void autoSetScale() throws NumberFormatException {
+        double newDistScale = Double.valueOf(this.jTextFieldDistScale.getText());
+        double minx = minStream(allPoints(), (TrackPoint x) -> x.x);
+        double maxx = maxStream(allPoints(), (TrackPoint x) -> x.x);
+        double miny = minStream(allPoints(), (TrackPoint x) -> x.y);
+        double maxy = maxStream(allPoints(), (TrackPoint x) -> x.y);
+        double minz = minStream(allPoints(), (TrackPoint x) -> x.z);
+        double maxz = maxStream(allPoints(), (TrackPoint x) -> x.z);
+        double maxdiff
+                = Arrays.stream(new double[]{
+                    (maxx - minx),
+                    (maxy - miny),
+                    (maxz - minz)
+                })
+                .max()
+                .orElse(0);
+        if (maxdiff > Double.MIN_NORMAL) {
+            int log = (int) Math.log10(maxdiff);
+            newDistScale = Math.pow(10.0, 2 - log);
+            this.jTextFieldDistScale.setText(String.format("%.1g", newDistScale * 100.0));
+        }
+        this.setDistScale(newDistScale);
+    }
+
+    private Stream<TrackPoint> allPoints() {
+        return this.TracksList
+                .stream()
+                .flatMap((List<Track> x) -> x.stream())
+                .map((Track x) -> x.getData())
+                .flatMap((List<TrackPoint> x) -> x.stream());
+    }
+
     private boolean showRotationFrames = false;
 
     public boolean isShowRotationFrames() {
@@ -1295,36 +1401,32 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         Platform.runLater(this::clear);
         Platform.runLater(runUpdateTracsList);
     }
-    
-    
+
+
     private void jCheckBoxShowRotationFramesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxShowRotationFramesActionPerformed
         this.setShowRotationFrames(this.jCheckBoxShowRotationFrames.isSelected());
     }//GEN-LAST:event_jCheckBoxShowRotationFramesActionPerformed
 
-//    private void updateFxPanelSize(Dimension prefSize, Dimension sz) {
-//        fxpanel.setPreferredSize(this.jPanel1.getPreferredSize());
-//        fxpanel.setSize(this.jPanel1.getSize());
-//    }
+    private void jPanel1ComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_jPanel1ComponentResized
+        updateSizes();
+    }//GEN-LAST:event_jPanel1ComponentResized
 
-//    private void updateSizes() {
-////        if(this.jPanel1.getSize().width > this.jPanel1.getPreferredSize().width
-////                && this.jPanel1.getSize().height > this.jPanel1.getPreferredSize().height) {
-////            this.jPanel1.setPreferredSize(this.jPanel1.getSize());
-////        }
-////        this.jPanel1.remove(this.fxpanel);
-////        final Dimension prefSize = this.jPanel1.getPreferredSize();
-////        System.out.println("prefSize = " + prefSize);
-////        final Dimension sz = this.jPanel1.getSize();
-////        System.out.println("sz = " + sz);
-////        //this.jPanel1.add(this.fxpanel);
-////        Platform.runLater(new Runnable() {
-////
-////            @Override
-////            public void run() {
-////                updateFxPanelSize(prefSize,sz);
-////            }
-////        });
-//    }
+    private void formComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentResized
+       updateSizes();
+    }//GEN-LAST:event_formComponentResized
+
+    private void updateSizes() {
+        final int w = Math.max(this.jPanel1.getPreferredSize().width,
+                Math.min(this.getSize().width,this.jPanel1.getSize().width));
+        final int h = Math.max(this.jPanel1.getPreferredSize().height,
+                Math.min(this.getSize().height,this.jPanel1.getSize().height));
+        
+        Platform.runLater(() -> {
+            centerWinTranslate.setX(w/2);
+            centerWinTranslate.setY(h/2);
+        });
+    }
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroupDragEnum;
@@ -1345,5 +1447,6 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
     private javax.swing.JRadioButton jRadioButtonTranXY;
     private javax.swing.JRadioButton jRadioButtonTranZ;
     private javax.swing.JTextField jTextFieldDistScale;
+    private javax.swing.JTextField jTextFieldTransforms;
     // End of variables declaration//GEN-END:variables
 }

@@ -205,6 +205,11 @@ public class MainJFrame extends javax.swing.JFrame {
 //                        -1, -1, -1);
         Track track = this.readTrack(csvParseOptions, f);
         addTrack(track);
+        autoSetScale();
+    }
+
+    public void autoSetScale() throws NumberFormatException {
+        view3DPlotJPanel1.autoSetScale();
     }
 
     public void addTrack(Track track) {
