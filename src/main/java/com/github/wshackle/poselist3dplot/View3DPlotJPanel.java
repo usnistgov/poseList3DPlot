@@ -193,8 +193,8 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         scene3D = new Scene(root, w, h, true);
         camera = new PerspectiveCamera();
         scene3D.setCamera(camera);
-        centerWinTranslate.setX(w/2);
-        centerWinTranslate.setY(h/2);
+        centerWinTranslate.setX(w/3);
+        centerWinTranslate.setY((2*h)/3);
         root.getTransforms().addAll(
                 centerWinTranslate,
                 new Rotate(180, Rotate.X_AXIS)
@@ -657,22 +657,26 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
 
         buttonGroupDragEnum = new javax.swing.ButtonGroup();
         jPanel1 = new javax.swing.JPanel();
-        jButtonZPosView = new javax.swing.JButton();
-        jRadioButtonRotXY = new javax.swing.JRadioButton();
-        jRadioButtonRotZ = new javax.swing.JRadioButton();
+        jPanelDragChoices = new javax.swing.JPanel();
         jRadioButtonTranXY = new javax.swing.JRadioButton();
+        jRadioButtonRotXY = new javax.swing.JRadioButton();
         jRadioButtonTranZ = new javax.swing.JRadioButton();
-        jButtonXPosView = new javax.swing.JButton();
-        jButtonXNegView = new javax.swing.JButton();
-        jButtonYPosView = new javax.swing.JButton();
+        jRadioButtonRotZ = new javax.swing.JRadioButton();
+        jPanelSelectView = new javax.swing.JPanel();
         jButtonZNegView = new javax.swing.JButton();
         jButtonYNegView = new javax.swing.JButton();
+        jButtonXPosView = new javax.swing.JButton();
+        jButtonYPosView = new javax.swing.JButton();
+        jButtonXNegView = new javax.swing.JButton();
+        jButtonZPosView = new javax.swing.JButton();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jPanelMisc = new javax.swing.JPanel();
         jCheckBoxPre = new javax.swing.JCheckBox();
-        jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        jCheckBoxShowRotationFrames = new javax.swing.JCheckBox();
         jTextFieldDistScale = new javax.swing.JTextField();
         jButtonSetScale = new javax.swing.JButton();
-        jCheckBoxShowRotationFrames = new javax.swing.JCheckBox();
+        jPanelTransformText = new javax.swing.JPanel();
         jTextFieldTransforms = new javax.swing.JTextField();
 
         addComponentListener(new java.awt.event.ComponentAdapter() {
@@ -699,13 +703,21 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 440, Short.MAX_VALUE)
+            .addGap(0, 398, Short.MAX_VALUE)
         );
 
-        jButtonZPosView.setText("Z+ View");
-        jButtonZPosView.addActionListener(new java.awt.event.ActionListener() {
+        jPanelDragChoices.setBorder(javax.swing.BorderFactory.createTitledBorder("Drag mouse to ..."));
+
+        buttonGroupDragEnum.add(jRadioButtonTranXY);
+        jRadioButtonTranXY.setText("Tran(XY)");
+        jRadioButtonTranXY.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jRadioButtonTranXYItemStateChanged(evt);
+            }
+        });
+        jRadioButtonTranXY.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonZPosViewActionPerformed(evt);
+                jRadioButtonTranXYActionPerformed(evt);
             }
         });
 
@@ -722,32 +734,6 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             }
         });
 
-        buttonGroupDragEnum.add(jRadioButtonRotZ);
-        jRadioButtonRotZ.setText("Rot(Z)");
-        jRadioButtonRotZ.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                jRadioButtonRotZItemStateChanged(evt);
-            }
-        });
-        jRadioButtonRotZ.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jRadioButtonRotZActionPerformed(evt);
-            }
-        });
-
-        buttonGroupDragEnum.add(jRadioButtonTranXY);
-        jRadioButtonTranXY.setText("Tran(XY)");
-        jRadioButtonTranXY.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                jRadioButtonTranXYItemStateChanged(evt);
-            }
-        });
-        jRadioButtonTranXY.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jRadioButtonTranXYActionPerformed(evt);
-            }
-        });
-
         buttonGroupDragEnum.add(jRadioButtonTranZ);
         jRadioButtonTranZ.setText("Tran(Z)");
         jRadioButtonTranZ.addItemListener(new java.awt.event.ItemListener() {
@@ -761,40 +747,125 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             }
         });
 
-        jButtonXPosView.setText("X+ View");
-        jButtonXPosView.addActionListener(new java.awt.event.ActionListener() {
+        buttonGroupDragEnum.add(jRadioButtonRotZ);
+        jRadioButtonRotZ.setText("Rot(Z)");
+        jRadioButtonRotZ.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jRadioButtonRotZItemStateChanged(evt);
+            }
+        });
+        jRadioButtonRotZ.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonXPosViewActionPerformed(evt);
+                jRadioButtonRotZActionPerformed(evt);
             }
         });
 
-        jButtonXNegView.setText("X- View");
-        jButtonXNegView.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonXNegViewActionPerformed(evt);
-            }
-        });
+        javax.swing.GroupLayout jPanelDragChoicesLayout = new javax.swing.GroupLayout(jPanelDragChoices);
+        jPanelDragChoices.setLayout(jPanelDragChoicesLayout);
+        jPanelDragChoicesLayout.setHorizontalGroup(
+            jPanelDragChoicesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelDragChoicesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jRadioButtonRotXY)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jRadioButtonRotZ)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jRadioButtonTranXY)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jRadioButtonTranZ)
+                .addContainerGap())
+        );
+        jPanelDragChoicesLayout.setVerticalGroup(
+            jPanelDragChoicesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelDragChoicesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanelDragChoicesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jRadioButtonRotXY)
+                    .addComponent(jRadioButtonRotZ)
+                    .addComponent(jRadioButtonTranXY)
+                    .addComponent(jRadioButtonTranZ))
+                .addContainerGap())
+        );
 
-        jButtonYPosView.setText("Y+ View");
-        jButtonYPosView.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonYPosViewActionPerformed(evt);
-            }
-        });
+        jPanelSelectView.setBorder(javax.swing.BorderFactory.createTitledBorder("Select View"));
 
-        jButtonZNegView.setText("Z- View");
+        jButtonZNegView.setText("Z-");
         jButtonZNegView.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonZNegViewActionPerformed(evt);
             }
         });
 
-        jButtonYNegView.setText("Y- View");
+        jButtonYNegView.setText("Y-");
         jButtonYNegView.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonYNegViewActionPerformed(evt);
             }
         });
+
+        jButtonXPosView.setText("X+");
+        jButtonXPosView.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonXPosViewActionPerformed(evt);
+            }
+        });
+
+        jButtonYPosView.setText("Y+");
+        jButtonYPosView.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonYPosViewActionPerformed(evt);
+            }
+        });
+
+        jButtonXNegView.setText("X-");
+        jButtonXNegView.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonXNegViewActionPerformed(evt);
+            }
+        });
+
+        jButtonZPosView.setText("Z+");
+        jButtonZPosView.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonZPosViewActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanelSelectViewLayout = new javax.swing.GroupLayout(jPanelSelectView);
+        jPanelSelectView.setLayout(jPanelSelectViewLayout);
+        jPanelSelectViewLayout.setHorizontalGroup(
+            jPanelSelectViewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelSelectViewLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jButtonXPosView)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButtonXNegView)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButtonYPosView)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButtonYNegView)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButtonZPosView)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButtonZNegView)
+                .addContainerGap())
+        );
+        jPanelSelectViewLayout.setVerticalGroup(
+            jPanelSelectViewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelSelectViewLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanelSelectViewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButtonXPosView)
+                    .addGroup(jPanelSelectViewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jButtonXNegView)
+                        .addComponent(jButtonYPosView)
+                        .addComponent(jButtonYNegView)
+                        .addComponent(jButtonZPosView)
+                        .addComponent(jButtonZNegView)))
+                .addContainerGap())
+        );
+
+        jPanelMisc.setBorder(javax.swing.BorderFactory.createTitledBorder("Misc"));
 
         jCheckBoxPre.setSelected(true);
         jCheckBoxPre.setText("Left Multiply New Transforms");
@@ -804,9 +875,14 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             }
         });
 
-        jLabel1.setText("Drag mouse in display to ...: ");
-
         jLabel2.setText("Distance Scale:");
+
+        jCheckBoxShowRotationFrames.setText("Show Rotation Frames");
+        jCheckBoxShowRotationFrames.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxShowRotationFramesActionPerformed(evt);
+            }
+        });
 
         jTextFieldDistScale.setText("1.0");
         jTextFieldDistScale.addActionListener(new java.awt.event.ActionListener() {
@@ -822,12 +898,62 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             }
         });
 
-        jCheckBoxShowRotationFrames.setText("Show Rotation Frames");
-        jCheckBoxShowRotationFrames.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBoxShowRotationFramesActionPerformed(evt);
-            }
-        });
+        javax.swing.GroupLayout jPanelMiscLayout = new javax.swing.GroupLayout(jPanelMisc);
+        jPanelMisc.setLayout(jPanelMiscLayout);
+        jPanelMiscLayout.setHorizontalGroup(
+            jPanelMiscLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelMiscLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanelMiscLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanelMiscLayout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextFieldDistScale, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonSetScale))
+                    .addGroup(jPanelMiscLayout.createSequentialGroup()
+                        .addComponent(jCheckBoxShowRotationFrames)
+                        .addGap(18, 18, 18)
+                        .addComponent(jCheckBoxPre)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanelMiscLayout.setVerticalGroup(
+            jPanelMiscLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelMiscLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanelMiscLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jCheckBoxShowRotationFrames)
+                    .addComponent(jCheckBoxPre))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanelMiscLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(jTextFieldDistScale)
+                    .addComponent(jButtonSetScale))
+                .addContainerGap())
+        );
+
+        jTabbedPane1.addTab("Options", jPanelMisc);
+
+        jPanelTransformText.setBorder(javax.swing.BorderFactory.createTitledBorder("Transform Text"));
+
+        javax.swing.GroupLayout jPanelTransformTextLayout = new javax.swing.GroupLayout(jPanelTransformText);
+        jPanelTransformText.setLayout(jPanelTransformTextLayout);
+        jPanelTransformTextLayout.setHorizontalGroup(
+            jPanelTransformTextLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelTransformTextLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jTextFieldTransforms, javax.swing.GroupLayout.DEFAULT_SIZE, 590, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanelTransformTextLayout.setVerticalGroup(
+            jPanelTransformTextLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelTransformTextLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jTextFieldTransforms, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        jTabbedPane1.addTab("Transform Text", jPanelTransformText);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -836,75 +962,33 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButtonXPosView)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonXNegView)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonYPosView)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonYNegView)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonZPosView)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonZNegView)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jCheckBoxShowRotationFrames)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextFieldDistScale, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonSetScale)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jCheckBoxPre)
-                        .addGap(0, 10, Short.MAX_VALUE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 644, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 1299, Short.MAX_VALUE)
+                            .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 644, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel1)
+                                .addComponent(jPanelDragChoices, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jRadioButtonRotXY)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jRadioButtonRotZ)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jRadioButtonTranXY)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jRadioButtonTranZ)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextFieldTransforms)))
-                        .addContainerGap())))
+                                .addComponent(jPanelSelectView, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 442, Short.MAX_VALUE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jRadioButtonRotXY)
-                        .addComponent(jRadioButtonRotZ)
-                        .addComponent(jRadioButtonTranXY)
-                        .addComponent(jRadioButtonTranZ)
-                        .addComponent(jLabel1))
-                    .addComponent(jTextFieldTransforms, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanelSelectView, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanelDragChoices, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButtonXPosView)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jButtonXNegView)
-                        .addComponent(jButtonYPosView)
-                        .addComponent(jButtonYNegView)
-                        .addComponent(jButtonZPosView)
-                        .addComponent(jButtonZNegView)
-                        .addComponent(jCheckBoxShowRotationFrames)
-                        .addComponent(jLabel2)
-                        .addComponent(jTextFieldDistScale)
-                        .addComponent(jButtonSetScale)
-                        .addComponent(jCheckBoxPre))))
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
+
+        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jPanelDragChoices, jPanelSelectView});
+
     }// </editor-fold>//GEN-END:initComponents
 
     private View3DDragEnum dragEnum = View3DDragEnum.UNDEFINED;
@@ -1422,8 +1506,8 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
                 Math.min(this.getSize().height,this.jPanel1.getSize().height));
         
         Platform.runLater(() -> {
-            centerWinTranslate.setX(w/2);
-            centerWinTranslate.setY(h/2);
+            centerWinTranslate.setX(w/3);
+            centerWinTranslate.setY((2*h)/3);
         });
     }
 
@@ -1439,13 +1523,17 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
     private javax.swing.JButton jButtonZPosView;
     private javax.swing.JCheckBox jCheckBoxPre;
     private javax.swing.JCheckBox jCheckBoxShowRotationFrames;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanelDragChoices;
+    private javax.swing.JPanel jPanelMisc;
+    private javax.swing.JPanel jPanelSelectView;
+    private javax.swing.JPanel jPanelTransformText;
     private javax.swing.JRadioButton jRadioButtonRotXY;
     private javax.swing.JRadioButton jRadioButtonRotZ;
     private javax.swing.JRadioButton jRadioButtonTranXY;
     private javax.swing.JRadioButton jRadioButtonTranZ;
+    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextField jTextFieldDistScale;
     private javax.swing.JTextField jTextFieldTransforms;
     // End of variables declaration//GEN-END:variables

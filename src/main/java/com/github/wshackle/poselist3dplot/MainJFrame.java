@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import rcs.posemath.PmException;
 import rcs.posemath.PmPose;
@@ -276,6 +277,7 @@ public class MainJFrame extends javax.swing.JFrame {
         }
         //</editor-fold>
 
+//        JOptionPane.showMessageDialog(null, "Current Directory = "+ System.getProperty("user.dir"));
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
