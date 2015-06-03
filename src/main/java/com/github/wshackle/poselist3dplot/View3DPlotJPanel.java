@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import javafx.geometry.Point3D;
 import javafx.scene.DepthTest;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -52,6 +53,8 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javax.swing.SwingUtilities;
+import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import rcs.posemath.PmRpy;
 
 /**
@@ -450,15 +453,19 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             if (dist < distScale / 1000.0) {
                 continue;
             }
+            double distXY = Math.sqrt((tp.x-last_tp.x)*(tp.x-last_tp.x)+ (tp.y-last_tp.y)*(tp.y-last_tp.y));
 //            double radius = Math.min(dist * distScale / 2.0, 1.0);
             Cylinder cyl = new Cylinder(1.0, dist * distScale);
 //            cyl.setTranslateX(last_tp.x*100.0);
 //            cyl.setTranslateY(last_tp.y*100.0);
 //            cyl.setTranslateZ(last_tp.z*100.0);
+            Rotation rot = new Rotation(Vector3D.PLUS_J, new Vector3D(tp.x - last_tp.x, tp.y-last_tp.y,tp.z - last_tp.z));
             cyl.getTransforms().addAll(
                     new Translate(last_tp.x * distScale, last_tp.y * distScale, last_tp.z * distScale),
-                    new Rotate(Math.toDegrees(Math.atan2(tp.x - last_tp.x, tp.z - last_tp.z)), Rotate.Y_AXIS),
-                    new Rotate(Math.toDegrees(Math.acos((tp.y - last_tp.y) / dist)), Rotate.X_AXIS),
+                    new Rotate(
+                            Math.toDegrees(rot.getAngle()), 
+                            new Point3D(rot.getAxis().getX(),rot.getAxis().getY(), rot.getAxis().getZ())
+                    ),
                     new Translate(0, dist * distScale / 2.0, 0)
             );
             cyl.setMaterial(lineMaterial);

@@ -8,14 +8,15 @@ package com.github.wshackle.poselist3dplot;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import rcs.posemath.PmException;
 import rcs.posemath.PmPose;
@@ -42,7 +43,9 @@ public class MainJFrame extends javax.swing.JFrame {
 
             @Override
             public void run() {
-                mjf.addTrack(toTrack(l));
+                if (null != l) {
+                    mjf.addTrack(toTrack(l));
+                }
                 mjf.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 mjf.setVisible(true);
             }
@@ -51,6 +54,9 @@ public class MainJFrame extends javax.swing.JFrame {
     }
 
     public static Track toTrack(List<? extends PmPose> l) {
+        if (null == l) {
+            return null;
+        }
         Track track = new Track();
         track.setData(new ArrayList<TrackPoint>());
         List<TrackPoint> data = track.getData();
@@ -87,7 +93,10 @@ public class MainJFrame extends javax.swing.JFrame {
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItemClearAll = new javax.swing.JMenuItem();
+        jMenuItemSave = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
+        jMenu3 = new javax.swing.JMenu();
+        jMenuItemTest1 = new javax.swing.JMenuItem();
 
         FormListener formListener = new FormListener();
 
@@ -103,10 +112,22 @@ public class MainJFrame extends javax.swing.JFrame {
         jMenuItemClearAll.addActionListener(formListener);
         jMenu1.add(jMenuItemClearAll);
 
+        jMenuItemSave.setText("Save As ...");
+        jMenuItemSave.addActionListener(formListener);
+        jMenu1.add(jMenuItemSave);
+
         jMenuBar1.add(jMenu1);
 
         jMenu2.setText("Edit");
         jMenuBar1.add(jMenu2);
+
+        jMenu3.setText("Test/Demo");
+
+        jMenuItemTest1.setText("Test 1");
+        jMenuItemTest1.addActionListener(formListener);
+        jMenu3.add(jMenuItemTest1);
+
+        jMenuBar1.add(jMenu3);
 
         setJMenuBar(jMenuBar1);
 
@@ -140,6 +161,12 @@ public class MainJFrame extends javax.swing.JFrame {
             }
             else if (evt.getSource() == jMenuItemClearAll) {
                 MainJFrame.this.jMenuItemClearAllActionPerformed(evt);
+            }
+            else if (evt.getSource() == jMenuItemSave) {
+                MainJFrame.this.jMenuItemSaveActionPerformed(evt);
+            }
+            else if (evt.getSource() == jMenuItemTest1) {
+                MainJFrame.this.jMenuItemTest1ActionPerformed(evt);
             }
         }
     }// </editor-fold>//GEN-END:initComponents
@@ -209,6 +236,20 @@ public class MainJFrame extends javax.swing.JFrame {
         autoSetScale();
     }
 
+    public void saveCsvFile(final File f) throws IOException {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(f))) {
+            pw.println(TrackPoint.HEADER);
+            this.view3DPlotJPanel1
+                    .getTracksList()
+                    .stream()
+                    .flatMap(x -> x.stream())
+                    .map(x -> x.getData())
+                    .flatMap(x -> x.stream())
+                    .map(x -> x.toString())
+                    .forEach(x -> pw.println(x));
+        }
+    }
+
     public void autoSetScale() throws NumberFormatException {
         view3DPlotJPanel1.autoSetScale();
     }
@@ -249,6 +290,52 @@ public class MainJFrame extends javax.swing.JFrame {
         this.view3DPlotJPanel1.setTracksList(null);
 
     }//GEN-LAST:event_jMenuItemClearAllActionPerformed
+
+    private void jMenuItemSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemSaveActionPerformed
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                "Comma-Separated-Values", "csv");
+        chooser.setFileFilter(filter);
+        int returnVal = chooser.showSaveDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            try {
+                final File f = chooser.getSelectedFile();
+                saveCsvFile(f);
+            } catch (Exception ex) {
+                Logger.getLogger(MainJFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_jMenuItemSaveActionPerformed
+
+    private void jMenuItemTest1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemTest1ActionPerformed
+//        this.view3DPlotJPanel1.clear();
+        Track t = new Track();
+        double x = 0;
+        double y = 0;
+        double z = 0;
+        PmRpy rpy = new PmRpy();
+        t.setData(new ArrayList<>());
+        for (; x < 2.0; x += 0.25) {
+            t.getData().add(new TrackPoint(x, y, z, rpy));
+        }
+        for (; y < 2.0; y += 0.25) {
+            t.getData().add(new TrackPoint(x, y, z, rpy));
+        }
+        for (; z < 2.0; z += 0.25) {
+            t.getData().add(new TrackPoint(x, y, z, rpy));
+        }
+        for (; y > 0.0; y -= 0.25) {
+            t.getData().add(new TrackPoint(x, y, z, rpy));
+        }
+        for (; z < 6.0; z += 0.25) {
+            rpy.y = 2.0 * Math.PI * (z - 2.0) / 3.0;
+            x = 2.0 * Math.cos(rpy.y);
+            y = 2.0 * Math.sin(rpy.y);
+            t.getData().add(new TrackPoint(x, y, z, rpy));
+        }
+        addTrack(t);
+        autoSetScale();
+    }//GEN-LAST:event_jMenuItemTest1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -298,9 +385,12 @@ public class MainJFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItemClearAll;
+    private javax.swing.JMenuItem jMenuItemSave;
+    private javax.swing.JMenuItem jMenuItemTest1;
     private com.github.wshackle.poselist3dplot.View3DPlotJPanel view3DPlotJPanel1;
     // End of variables declaration//GEN-END:variables
 }
