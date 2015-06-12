@@ -2,6 +2,7 @@ package com.github.wshackle.poselist3dplot;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import javafx.scene.Group;
 
 /**
  *
