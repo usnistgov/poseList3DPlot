@@ -101,6 +101,7 @@ public class MainJFrame extends javax.swing.JFrame {
         FormListener formListener = new FormListener();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Pose List 3D Plot");
 
         jMenu1.setText("File");
 

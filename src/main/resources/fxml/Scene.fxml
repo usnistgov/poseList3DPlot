@@ -1,14 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.effect.*?>
 <?import java.lang.*?>
 <?import java.util.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane id="AnchorPane" prefHeight="200" prefWidth="320" xmlns:fx="http://javafx.com/fxml" fx:controller="com.github.wshackle.poselist3dplot.FXMLController">
-    <children>
-        <Button layoutX="126" layoutY="90" text="Click Me!" onAction="#handleButtonAction" fx:id="button" />
-        <Label layoutX="126" layoutY="120" minHeight="16" minWidth="69" fx:id="label" />
-    </children>
-</AnchorPane>
+<GridPane prefHeight="358.0" prefWidth="867.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.wshackle.poselist3dplot.FXMLController">
+   <columnConstraints>
+      <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="30.0" vgrow="NEVER" />
+      <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="37.0" vgrow="NEVER" />
+      <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="27.0" vgrow="NEVER" />
+      <RowConstraints maxHeight="1.7976931348623157E308" minHeight="-Infinity" prefHeight="311.0" vgrow="SOMETIMES" />
+   </rowConstraints>
+   <children>
+      <ToolBar GridPane.rowIndex="1">
+        <items>
+            <Button minHeight="-Infinity" mnemonicParsing="false" text="X-" fx:id="xNegButton" />
+            <Button minHeight="-Infinity" mnemonicParsing="false" text="X+" fx:id="xPlusButton" />
+            <Button fx:id="yPlusButton" minHeight="-Infinity" mnemonicParsing="false" text="Y+" />
+            <Button fx:id="yNegButton" minHeight="-Infinity" mnemonicParsing="false" text="Y-" />
+            <Button fx:id="zPlusButton" minHeight="-Infinity" mnemonicParsing="false" text="Z+" />
+            <Button fx:id="zNegButton" minHeight="-Infinity" mnemonicParsing="false" text="Z-" />
+        </items>
+      </ToolBar>
+      <AnchorPane fx:id="SCENE_PARENT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="302.0" prefWidth="872.0" style="-fx-background-color: red;" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
+         <children>
+            <SubScene fx:id="subScene3D" fill="WHITE" height="317.0" layoutY="-3.0" width="872.0">
+               <root>
+                  <Region />
+               </root>
+            </SubScene>
+         </children>
+      </AnchorPane>
+      <MenuBar>
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Close" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Edit">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Delete" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+      <ToolBar GridPane.rowIndex="2">
+         <items>
+            <RadioButton fx:id="radioRotateXY" mnemonicParsing="false" text="Rotate(XY)" />
+            <RadioButton fx:id="radioRotateZ" mnemonicParsing="false" text="Rotate(Z)" />
+            <RadioButton fx:id="radioTranslateXY" mnemonicParsing="false" text="Translate(XY)" />
+            <RadioButton fx:id="radioTranslateZ" mnemonicParsing="false" text="Translate(Z)" />
+         </items>
+      </ToolBar>
+   </children>
+</GridPane>

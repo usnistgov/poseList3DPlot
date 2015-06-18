@@ -146,11 +146,9 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
     private Scene3DController scene3DController = new Scene3DController();
     
     private void initFxScene() {
-        fxpanel.setScene(
-                scene3DController.create3DScene(
-                        Math.max(this.jPanel1.getPreferredSize().width, this.jPanel1.getSize().width),
+        fxpanel.setScene(scene3DController.create3DScene(Math.max(this.jPanel1.getPreferredSize().width, this.jPanel1.getSize().width),
                         Math.max(this.jPanel1.getPreferredSize().height, this.jPanel1.getSize().height)
-                , this)
+                )
         );
     }
 
@@ -589,11 +587,12 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
-                    scene3DController.setupTransforms(_dragEnum);
+                    scene3DController.setDragEnum(_dragEnum);
+                    scene3DController.setupTransforms();
                 }
             });
         }
-        scene3DController.setDragEnum(_dragEnum);
+//        scene3DController.setDragEnum(_dragEnum);
     }
 
     private void updateDragEnum() {
@@ -696,7 +695,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             @Override
             public void run() {
                 scene3DController.setLeftMultiplySelected(preMult);
-                scene3DController.setupTransforms(scene3DController.getDragEnum());
+                scene3DController.setupTransforms();
             }
         });
     }//GEN-LAST:event_jCheckBoxPreActionPerformed

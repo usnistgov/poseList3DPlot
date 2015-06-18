@@ -39,12 +39,14 @@
         <url>https://github.com/wshackle/poseList3DPlot</url>
         <tag>HEAD</tag>
     </scm>
+    <url>https://github.com/wshackle/poseList3DPlot</url>
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <mainClass>com.github.wshackle.poselist3dplot.MainJFrame</mainClass>
+        <mainClass>com.github.wshackle.poselist3dplot.MainApp1</mainClass>
+        <exec.mainClass>${mainClass}</exec.mainClass>
     </properties>
     <distributionManagement>
         <snapshotRepository>

@@ -20,8 +20,11 @@ import javafx.geometry.Point3D;
 import javafx.scene.DepthTest;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
+import javafx.scene.SceneAntialiasing;
+import javafx.scene.SubScene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -68,7 +71,7 @@ public class Scene3DController {
 
     private Rotate rz = new Rotate(0, Rotate.Z_AXIS);
     private Translate t = new Translate();
-    private Scene scene3D = null;
+
     private Translate tmain = new Translate();
     private Rotate rxmain = new Rotate(0, Rotate.X_AXIS);
     private Rotate rymain = new Rotate(0, Rotate.Y_AXIS);
@@ -86,7 +89,7 @@ public class Scene3DController {
     private HashMap<List<Track>, Group> trackListGroupMap = new HashMap<>();
     private Group TracksGroup = null;
     private HashMap<Track, Group> trackCurPosGroupMap = new HashMap<>();
-    private View3DDragEnum dragEnum = View3DDragEnum.UNDEFINED;
+    private View3DDragEnum dragEnum = View3DDragEnum.ROT_XY;
     private double distScale = 100.0;
     private boolean showRotationFrames = false;
 
@@ -117,10 +120,15 @@ public class Scene3DController {
         }
     }
 
-    public Scene create3DScene(int w, int h, View3DPlotJPanel view3DPlotJPanel) {
+    /**
+     *
+     * @param w the value of w
+     * @param h the value of h
+     */
+    public Scene create3DScene(int w, int h) {
         Group root = new Group();
         root.setDepthTest(DepthTest.ENABLE);
-        scene3D = new Scene(root, w, h, true);
+        Scene scene3D = new Scene(root, w, h, true);
         camera = new PerspectiveCamera();
         scene3D.setCamera(camera);
         getCenterWinTranslate().setX(w / 3);
@@ -133,13 +141,50 @@ public class Scene3DController {
         scene3D.setOnMouseExited(this::handlePanelMouseReleasExitedEvent);
         scene3D.setOnKeyPressed(this::handleKeyEvent);
         scene3D.setOnKeyTyped(this::handleKeyEvent);
+        Platform.runLater(() -> {
+            xNegView();
+        });
         return scene3D;
+    }
+
+    public SubScene create3DSubScene(Parent parent, double w, double h, View3DPlotJPanel view3DPlotJPanel) {
+        SubScene scene3D = new SubScene(parent, w, h, true, SceneAntialiasing.BALANCED);
+        setupSubscene(scene3D, w, h);
+        return scene3D;
+    }
+
+    public void setupSubscene(SubScene scene3D, double w, double h) {
+        Parent p = scene3D.getRoot();
+        boolean pIsGroup = p instanceof Group;
+        System.out.println("scene3D.getRoot() = " + scene3D.getRoot());
+        System.out.println("scene3D.getParent() = " + scene3D.getParent());
+//        System.out.println("pIsGroup = " + pIsGroup);
+        Group root = pIsGroup ? (Group) p : new Group();
+        root.setDepthTest(DepthTest.ENABLE);
+        camera = new PerspectiveCamera();
+        scene3D.setCamera(camera);
+        scene3D.setRoot(root);
+        getCenterWinTranslate().setX(w / 3);
+        getCenterWinTranslate().setY((2 * h) / 3);
+        root.getTransforms().addAll(getCenterWinTranslate(), new Rotate(180, Rotate.X_AXIS));
+        setContentGroup(this.create3dContent());
+        root.getChildren().addAll(getContentGroup());
+//        scene3D.heightProperty().bind(scene3D.getParent());
+//        scene3D.setManaged(false);
+        scene3D.setOnMouseDragged(this::handleFxRootMouseEvent);
+        scene3D.setOnMouseReleased(this::handlePanelMouseReleasExitedEvent);
+        scene3D.setOnMouseExited(this::handlePanelMouseReleasExitedEvent);
+        scene3D.setOnKeyPressed(this::handleKeyEvent);
+        scene3D.setOnKeyTyped(this::handleKeyEvent);
+        Platform.runLater(() -> {
+            xNegView();
+        });
     }
 
     private void resetTransforms() {
         getContentGroup().getTransforms().clear();
         getContentGroup().getTransforms().addAll(getTmain(), getRxmain(), getRymain(), getRzmain());
-        setupTransforms(getDragEnum());
+        setupTransforms();
     }
 
     /**
@@ -307,6 +352,7 @@ public class Scene3DController {
     }
 
     private void handleFxRootMouseEvent(javafx.scene.input.MouseEvent me) {
+//        System.out.println("me = " + me);
         if (me.getEventType() == MouseEvent.MOUSE_RELEASED) {
             setLastMouseEvent(null);
             return;
@@ -326,9 +372,12 @@ public class Scene3DController {
         mouseNewX = me.getX();
         mouseNewY = me.getY();
         setLastMouseEvent(me);
-        double mouseDeltaX = mouseNewX - mouseOldX;
-        double mouseDeltaY = mouseNewY - mouseOldY;
-        transformWMouseDelta(mouseDeltaX, mouseDeltaY, getDragEnum());
+        final double mouseDeltaX = mouseNewX - mouseOldX;
+        final double mouseDeltaY = mouseNewY - mouseOldY;
+        Platform.runLater(() -> {
+            transformWMouseDelta(mouseDeltaX, mouseDeltaY);
+        });
+
     }
 
     private void handleKeyEvent(javafx.scene.input.KeyEvent event) {
@@ -381,8 +430,8 @@ public class Scene3DController {
         this.leftMultiplySelected = leftMultiplySelected;
     }
 
-    public void setupTransforms(View3DDragEnum _dragEnum) {
-        switch (_dragEnum) {
+    public void setupTransforms() {
+        switch (dragEnum) {
             case UNDEFINED:
                 break;
             case ROT_XY:
@@ -438,7 +487,7 @@ public class Scene3DController {
      * @param mouseDeltaY the value of mouseDeltaY
      * @param dragEnum the value of dragEnum
      */
-    private void transformWMouseDelta(double mouseDeltaX, double mouseDeltaY, View3DDragEnum dragEnum) {
+    private void transformWMouseDelta(double mouseDeltaX, double mouseDeltaY) {
         double mouseDelta = Math.sqrt(mouseDeltaX * mouseDeltaX + mouseDeltaY * mouseDeltaY);
         if (mouseDelta > 20.0) {
             return;
@@ -458,7 +507,9 @@ public class Scene3DController {
             t.setY(t.getY() - mouseDeltaY);
         } else if (dragEnum == View3DDragEnum.ROT_XY) {
             ry.setAngle(ry.getAngle() + mouseDeltaX * 0.75);
+//            System.out.println("rx.getAngle() = " + rx.getAngle());
             rx.setAngle(rx.getAngle() + mouseDeltaY * 0.75);
+//            System.out.println("ry.getAngle() = " + ry.getAngle());
         }
         updateTransformsText();
     }
@@ -484,6 +535,7 @@ public class Scene3DController {
     private void setTransformText(String transformText) {
         String oldTransformText = this.transformText;
         this.transformText = transformText;
+//        System.out.println("transformText = " + transformText);
         propertyChangeSupport.firePropertyChange(PROP_TRANSFORMTEXT, oldTransformText, transformText);
     }
 
@@ -631,6 +683,7 @@ public class Scene3DController {
         rxmain.setAngle(0);
         rymain.setAngle(180);
         rzmain.setAngle(0);
+        resetTransforms();
     }
 
     public void updateSize(final int w, final int h) {
