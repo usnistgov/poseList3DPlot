@@ -12,13 +12,16 @@ public class MainApp1 extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/fxml/Scene.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Scene.fxml"));
+        Parent root = loader.load();
         
         Scene scene = new Scene(root);
         scene.getStylesheets().add("/styles/Styles.css");
         
         stage.setTitle("Pose List 3D Plot");
         stage.setScene(scene);
+        FXMLController controller = loader.getController();
+        controller.setStage(stage);
         stage.show();
     }
 

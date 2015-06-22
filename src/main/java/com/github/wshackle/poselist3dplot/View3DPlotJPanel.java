@@ -20,14 +20,15 @@
  */
 package com.github.wshackle.poselist3dplot;
 
+import static com.github.wshackle.poselist3dplot.TrackUtils.maxStream;
+import static com.github.wshackle.poselist3dplot.TrackUtils.minStream;
 import java.awt.BorderLayout;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.function.ToDoubleFunction;
-import java.util.stream.Stream;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javax.swing.SwingUtilities;
@@ -153,7 +154,6 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
     }
 
 
-    private List<List<Track>> tracksList;
 
     /**
      * Get the value of tracksList
@@ -161,7 +161,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
      * @return the value of tracksList
      */
     public List<List<Track>> getTracksList() {
-        return tracksList;
+        return scene3DController.getTracksList();
     }
 
     /**
@@ -169,15 +169,23 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
      *
      * @param TracksList new value of tracksList
      */
+    public void setSingleTrack(Track track) {
+        scene3DController.setSingleTrack(track);
+    }
+    
+    /**
+     * Set the value of tracksList
+     *
+     * @param TracksList new value of tracksList
+     */
     public void setTracksList(List<List<Track>> TracksList) {
-        this.tracksList = TracksList;
-        scene3DController.updateTracksList(this.tracksList);
+        scene3DController.setTracksList(TracksList);
     }
 
     private final Runnable runUpdateTracsList = new Runnable() {
         @Override
         public void run() {
-            scene3DController.updateTracksList(tracksList);
+            scene3DController.updateTracksList(scene3DController.tracksList);
         }
     };
 
@@ -707,7 +715,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
 
     public void setDistScale(double distScale) {
         scene3DController.setDistScale(distScale);
-        scene3DController.refreshScene(tracksList);
+//        scene3DController.refreshScene(scene3DController.tracksList);
     }
 
     private void jTextFieldDistScaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldDistScaleActionPerformed
@@ -715,56 +723,26 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         this.setDistScale(newDistScale / 100.0);
     }//GEN-LAST:event_jTextFieldDistScaleActionPerformed
 
-    private <T> double minStream(Stream<T> stream, ToDoubleFunction<T> mapper) {
-        return stream
-                .mapToDouble(mapper)
-                .min()
-                .orElse(Double.POSITIVE_INFINITY);
-    }
-
-    private <T> double maxStream(Stream<T> stream, ToDoubleFunction<T> mapper) {
-        return stream
-                .mapToDouble(mapper)
-                .max()
-                .orElse(Double.NEGATIVE_INFINITY);
-    }
 
     private void jButtonSetScaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSetScaleActionPerformed
         autoSetScale();
     }//GEN-LAST:event_jButtonSetScaleActionPerformed
 
     public void autoSetScale() throws NumberFormatException {
-        double newDistScale = Double.valueOf(this.jTextFieldDistScale.getText());
-        double minx = minStream(allPoints(), (TrackPoint x) -> x.x);
-        double maxx = maxStream(allPoints(), (TrackPoint x) -> x.x);
-        double miny = minStream(allPoints(), (TrackPoint x) -> x.y);
-        double maxy = maxStream(allPoints(), (TrackPoint x) -> x.y);
-        double minz = minStream(allPoints(), (TrackPoint x) -> x.z);
-        double maxz = maxStream(allPoints(), (TrackPoint x) -> x.z);
-        double maxdiff
-                = Arrays.stream(new double[]{
-                    (maxx - minx),
-                    (maxy - miny),
-                    (maxz - minz)
-                })
-                .max()
-                .orElse(0);
-        if (maxdiff > Double.MIN_NORMAL) {
-            int log = (int) Math.log10(maxdiff);
-            newDistScale = Math.pow(10.0, 2 - log);
-            this.jTextFieldDistScale.setText(String.format("%.1g", newDistScale * 100.0));
-        }
+        double newDistScale = getAutoScale(scene3DController.tracksList);
+        this.jTextFieldDistScale.setText(String.format("%.1g", newDistScale * 100.0));
         this.setDistScale(newDistScale);
     }
 
-    private Stream<TrackPoint> allPoints() {
-        return this.tracksList
-                .stream()
-                .flatMap((List<Track> x) -> x.stream())
-                .map((Track x) -> x.getData())
-                .flatMap((List<TrackPoint> x) -> x.stream());
+    /**
+     *
+     * @param tracksList the value of tracksList
+     * @return the double
+     * @throws NumberFormatException
+     */
+    public static double getAutoScale(List<? extends List<? extends Track>> tracksList) throws NumberFormatException {
+        return TrackUtils.getAutoScale(tracksList);
     }
-
 
     public boolean isShowRotationFrames() {
         return scene3DController.isShowRotationFrames();
@@ -772,7 +750,7 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
 
     public void setShowRotationFrames(boolean showRotationFrames) {
         scene3DController.setShowRotationFrames(showRotationFrames);
-        scene3DController.refreshScene(tracksList);
+        scene3DController.refreshScene(scene3DController.tracksList);
     }
 
 
@@ -789,6 +767,14 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
        updateSizes();
     }//GEN-LAST:event_formComponentResized
 
+    /**
+     *
+     * @param track the value of track
+     */
+    public void addTrack(Track track) {
+        scene3DController.addTrack(track);
+    }
+    
     private void updateSizes() {
         final int w = Math.max(this.jPanel1.getPreferredSize().width,
                 Math.min(this.getSize().width,this.jPanel1.getSize().width));

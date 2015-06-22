@@ -5,23 +5,17 @@
  */
 package com.github.wshackle.poselist3dplot;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import rcs.posemath.PmException;
 import rcs.posemath.PmPose;
-import rcs.posemath.PmRpy;
-import rcs.posemath.Posemath;
 
 /**
  *
@@ -44,7 +38,7 @@ public class MainJFrame extends javax.swing.JFrame {
             @Override
             public void run() {
                 if (null != l) {
-                    mjf.addTrack(toTrack(l));
+                    mjf.view3DPlotJPanel1.addTrack(TrackUtils.toTrack(l));
                 }
                 mjf.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 mjf.setVisible(true);
@@ -53,31 +47,6 @@ public class MainJFrame extends javax.swing.JFrame {
         return mjf;
     }
 
-    public static Track toTrack(List<? extends PmPose> l) {
-        if (null == l) {
-            return null;
-        }
-        Track track = new Track();
-        track.setData(new ArrayList<TrackPoint>());
-        List<TrackPoint> data = track.getData();
-        boolean pmErrorOccurred = false;
-        for (PmPose pose : l) {
-            TrackPoint tp = new TrackPoint();
-            tp.x = pose.tran.x;
-            tp.y = pose.tran.y;
-            tp.z = pose.tran.z;
-            if (!pmErrorOccurred) {
-                try {
-                    tp.setRpy(Posemath.toRpy(pose.rot));
-                } catch (PmException ex) {
-                    pmErrorOccurred = true;
-                    Logger.getLogger(MainJFrame.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            data.add(tp);
-        }
-        return track;
-    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -173,40 +142,7 @@ public class MainJFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     public Track readTrack(CsvParseOptions options, File f) {
-        Track track = new Track();
-        track.setData(new ArrayList<TrackPoint>());
-        try (BufferedReader br = new BufferedReader(new FileReader(f))) {
-            // ignore header 
-            br.readLine();
-            String line = null;
-            while (null != (line = br.readLine())) {
-                String tok[] = line.split(options.delim);
-                TrackPoint tp = new TrackPoint();
-                if (options.X_INDEX >= 0 && options.X_INDEX < tok.length) {
-                    tp.x = options.DISTANCE_SCALE * Double.valueOf(tok[options.X_INDEX]);
-                }
-                if (options.Y_INDEX >= 0 && options.Y_INDEX < tok.length) {
-                    tp.y = options.DISTANCE_SCALE * Double.valueOf(tok[options.Y_INDEX]);
-                }
-                if (options.Z_INDEX >= 0 && options.Z_INDEX < tok.length) {
-                    tp.z = options.DISTANCE_SCALE * Double.valueOf(tok[options.Z_INDEX]);
-                }
-                if (options.ROLL_INDEX >= 0 && options.ROLL_INDEX < tok.length) {
-                    tp.setRoll(Math.toRadians(Double.valueOf(tok[options.ROLL_INDEX])));
-                }
-                if (options.PITCH_INDEX >= 0 && options.PITCH_INDEX < tok.length) {
-                    tp.setPitch(Math.toRadians(Double.valueOf(tok[options.PITCH_INDEX])));
-                }
-                if (options.YAW_INDEX >= 0 && options.YAW_INDEX < tok.length) {
-                    tp.setYaw(Math.toRadians(Double.valueOf(tok[options.YAW_INDEX])));
-                }
-                track.getData().add(tp);
-            }
-
-        } catch (IOException ex) {
-            Logger.getLogger(MainJFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return track;
+        return readTrack(options, f);
     }
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
@@ -233,9 +169,10 @@ public class MainJFrame extends javax.swing.JFrame {
 //                        csvParseOptions.Z_INDEX,
 //                        -1, -1, -1);
         Track track = this.readTrack(csvParseOptions, f);
-        addTrack(track);
-        autoSetScale();
+        track.cur_time_index = track.getData().size();
+        this.view3DPlotJPanel1.setSingleTrack(track);
     }
+
 
     public void saveCsvFile(final File f) throws IOException {
         try (PrintWriter pw = new PrintWriter(new FileWriter(f))) {
@@ -251,37 +188,6 @@ public class MainJFrame extends javax.swing.JFrame {
         }
     }
 
-    public void autoSetScale() throws NumberFormatException {
-        view3DPlotJPanel1.autoSetScale();
-    }
-
-    public void addTrack(Track track) {
-        List<List<Track>> tracksList = this.view3DPlotJPanel1.getTracksList();
-        if (null == tracksList) {
-            tracksList = new ArrayList<>();
-        }
-        List<Track> trackList = tracksList.size() > 0 ? tracksList.get(0) : null;
-        if (null == trackList) {
-            trackList = new ArrayList<>();
-            tracksList.add(trackList);
-        }
-        List<TrackPoint> data = track.getData();
-//                for (PM_POSE p : l) {
-//                    TrackPoint tp = new TrackPoint();
-//                    tp.x = p.tran.x;
-//                    tp.y = p.tran.y;
-//                    tp.z = p.tran.z;
-//                    data.add(tp);
-//                }
-//                track.setData(data);
-        if (null == data || data.size() < 1) {
-            return;
-        }
-        track.currentPoint = data.get(data.size() - 1);
-        track.cur_time_index = data.size() - 1;
-        trackList.add(track);
-        this.view3DPlotJPanel1.setTracksList(tracksList);
-    }
 
     private void jMenuItemClearAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemClearAllActionPerformed
         List<List<Track>> tracksList = this.view3DPlotJPanel1.getTracksList();
@@ -289,7 +195,6 @@ public class MainJFrame extends javax.swing.JFrame {
             tracksList.clear();
         }
         this.view3DPlotJPanel1.setTracksList(null);
-
     }//GEN-LAST:event_jMenuItemClearAllActionPerformed
 
     private void jMenuItemSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemSaveActionPerformed
@@ -309,34 +214,14 @@ public class MainJFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItemSaveActionPerformed
 
     private void jMenuItemTest1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemTest1ActionPerformed
-//        this.view3DPlotJPanel1.clear();
-        Track t = new Track();
-        double x = 0;
-        double y = 0;
-        double z = 0;
-        PmRpy rpy = new PmRpy();
-        t.setData(new ArrayList<>());
-        for (; x < 2.0; x += 0.25) {
-            t.getData().add(new TrackPoint(x, y, z, rpy));
-        }
-        for (; y < 2.0; y += 0.25) {
-            t.getData().add(new TrackPoint(x, y, z, rpy));
-        }
-        for (; z < 2.0; z += 0.25) {
-            t.getData().add(new TrackPoint(x, y, z, rpy));
-        }
-        for (; y > 0.0; y -= 0.25) {
-            t.getData().add(new TrackPoint(x, y, z, rpy));
-        }
-        for (; z < 6.0; z += 0.25) {
-            rpy.y = 2.0 * Math.PI * (z - 2.0) / 3.0;
-            x = 2.0 * Math.cos(rpy.y);
-            y = 2.0 * Math.sin(rpy.y);
-            t.getData().add(new TrackPoint(x, y, z, rpy));
-        }
-        addTrack(t);
-        autoSetScale();
+        Track t = getTest1Track();
+        this.view3DPlotJPanel1.setSingleTrack(t);
+        this.view3DPlotJPanel1.autoSetScale();
     }//GEN-LAST:event_jMenuItemTest1ActionPerformed
+
+    public static Track getTest1Track() {
+        return TrackUtils.getTest1Track();
+    }
 
     /**
      * @param args the command line arguments

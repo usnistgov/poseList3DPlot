@@ -7,8 +7,10 @@ package com.github.wshackle.poselist3dplot;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,6 +38,7 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import rcs.posemath.PmRpy;
@@ -64,6 +67,14 @@ public class Scene3DController {
                 return Optional.of(String.format("Ry(%+.3g)", r.getAngle()));
             } else if (r.getAxis().equals(Rotate.Z_AXIS)) {
                 return Optional.of(String.format("Rz(%+.3g)", r.getAngle()));
+            } else {
+                return Optional.of(
+                        String.format("R(%.3g about (%+.3g,%.3g,%.3g))",
+                                r.getAngle(),
+                                r.getAxis().getX(),
+                                r.getAxis().getY(),
+                                r.getAxis().getZ())
+                );
             }
         }
         return Optional.empty();
@@ -81,9 +92,9 @@ public class Scene3DController {
     private Translate p = new Translate();
     private MouseEvent lastMouseEvent = null;
     private PerspectiveCamera camera = null;
-    private Rotate rx = new Rotate(0, Rotate.X_AXIS);
+//    private Rotate rx = new Rotate(0, Rotate.X_AXIS);
     private Scale s = new Scale();
-    private Rotate ry = new Rotate(0, Rotate.Y_AXIS);
+    private Rotate rxy = new Rotate(0, Rotate.Y_AXIS);
     private Rotate rzmain = new Rotate(0, Rotate.Z_AXIS);
     private HashMap<Track, Group> trackGroupMap = new HashMap<>();
     private HashMap<List<Track>, Group> trackListGroupMap = new HashMap<>();
@@ -92,6 +103,7 @@ public class Scene3DController {
     private View3DDragEnum dragEnum = View3DDragEnum.ROT_XY;
     private double distScale = 100.0;
     private boolean showRotationFrames = false;
+    List<List<Track>> tracksList;
 
     private void updateTracksListsFX(final List<List<Track>> tracksList) {
         if (null == tracksList || tracksList.size() < 1) {
@@ -147,7 +159,13 @@ public class Scene3DController {
         return scene3D;
     }
 
-    public SubScene create3DSubScene(Parent parent, double w, double h, View3DPlotJPanel view3DPlotJPanel) {
+    /**
+     *
+     * @param parent the value of parent
+     * @param w the value of w
+     * @param h the value of h
+     */
+    public SubScene create3DSubScene(Parent parent, double w, double h) {
         SubScene scene3D = new SubScene(parent, w, h, true, SceneAntialiasing.BALANCED);
         setupSubscene(scene3D, w, h);
         return scene3D;
@@ -156,8 +174,8 @@ public class Scene3DController {
     public void setupSubscene(SubScene scene3D, double w, double h) {
         Parent p = scene3D.getRoot();
         boolean pIsGroup = p instanceof Group;
-        System.out.println("scene3D.getRoot() = " + scene3D.getRoot());
-        System.out.println("scene3D.getParent() = " + scene3D.getParent());
+//        System.out.println("scene3D.getRoot() = " + scene3D.getRoot());
+//        System.out.println("scene3D.getParent() = " + scene3D.getParent());
 //        System.out.println("pIsGroup = " + pIsGroup);
         Group root = pIsGroup ? (Group) p : new Group();
         root.setDepthTest(DepthTest.ENABLE);
@@ -385,10 +403,10 @@ public class Scene3DController {
             double r = event.isShiftDown() ? 1 : -1;
             switch (event.getCode()) {
                 case X:
-                    rx.setAngle(rx.getAngle() + r);
+                    composeRotation(r, Vector3D.PLUS_I, rxy);
                     break;
                 case Y:
-                    ry.setAngle(ry.getAngle() + r);
+                    composeRotation(r, Vector3D.PLUS_J, rxy);
                     break;
                 case Z:
                     rz.setAngle(rz.getAngle() + r);
@@ -408,6 +426,43 @@ public class Scene3DController {
                     break;
             }
         }
+    }
+
+    public void composeRotation(double r, Vector3D axis, Rotate rxy) throws MathIllegalArgumentException {
+//        System.out.println("r = " + r);
+//        System.out.println("axis = " + axis);
+//        System.out.println("rxy = " + rxy);
+        if (Math.abs(rxy.getAngle()) < Math.PI / 36000.0) {
+            rxy.setAngle(r);
+            rxy.setAxis(new Point3D(axis.getX(), axis.getY(), axis.getZ()));
+            updateTransformsText();
+//            System.out.println("getTransformText() = " + getTransformText());
+//            System.out.println("rxy = " + rxy);
+            return;
+        }
+        Point3D p = rxy.getAxis();
+        Rotation rot1 = new Rotation(new Vector3D(p.getX(), p.getY(), p.getZ()),
+                Math.toRadians(rxy.getAngle()));
+        Rotation rot2 =new Rotation(axis, Math.toRadians(r));
+//        System.out.println("rot1 = " + rot1);
+//        System.out.println("rot1.getAxis() = " + rot1.getAxis());
+//        System.out.println("rot1.getAngle() = " + rot1.getAngle());
+//
+//        System.out.println("rot2 = " + rot2);
+//        System.out.println("rot2.getAxis() = " + rot2.getAxis());
+//        System.out.println("rot2.getAngle() = " + rot2.getAngle());
+        Rotation rotProduct = rot2.applyTo(rot1);
+//        System.out.println("rotProduct = " + rotProduct);
+//        System.out.println("rotProduct.getAxis() = " + rotProduct.getAxis());
+//        System.out.println("rotProduct.getAngle() = " + rotProduct.getAngle());
+
+        rxy.setAxis(new Point3D(rotProduct.getAxis().getX(),
+                rotProduct.getAxis().getY(),
+                rotProduct.getAxis().getZ()));
+        rxy.setAngle(Math.toDegrees(rotProduct.getAngle()));
+        updateTransformsText();
+//        System.out.println("rxy = " + rxy);
+//        System.out.println("getTransformText() = " + getTransformText());
     }
 
     private boolean leftMultiplySelected = true;
@@ -430,19 +485,27 @@ public class Scene3DController {
         this.leftMultiplySelected = leftMultiplySelected;
     }
 
+    public Rotate getRxy() {
+        return rxy;
+    }
+
+    public void setRxy(Rotate rxy) {
+        this.rxy = rxy;
+    }
+
     public void setupTransforms() {
         switch (dragEnum) {
             case UNDEFINED:
                 break;
             case ROT_XY:
-                this.setRx(new Rotate(0, Rotate.X_AXIS));
-                this.setRy(new Rotate(0, Rotate.Y_AXIS));
+                this.setRxy(new Rotate(0, Z1Point));
+                //this.setRy(new Rotate(0, Rotate.Y_AXIS));
                 if (leftMultiplySelected) {
-                    this.getContentGroup().getTransforms().add(0, getRy());
-                    this.getContentGroup().getTransforms().add(0, getRx());
+                    this.getContentGroup().getTransforms().add(0, getRxy());
+//                    this.getContentGroup().getTransforms().add(0, getRx());
                 } else {
-                    this.getContentGroup().getTransforms().add(getRy());
-                    this.getContentGroup().getTransforms().add(getRx());
+                    this.getContentGroup().getTransforms().add(getRxy());
+//                    this.getContentGroup().getTransforms().add(getRx());
                 }
                 break;
             case ROT_Z:
@@ -506,10 +569,13 @@ public class Scene3DController {
             t.setX(t.getX() + mouseDeltaX);
             t.setY(t.getY() - mouseDeltaY);
         } else if (dragEnum == View3DDragEnum.ROT_XY) {
-            ry.setAngle(ry.getAngle() + mouseDeltaX * 0.75);
-//            System.out.println("rx.getAngle() = " + rx.getAngle());
-            rx.setAngle(rx.getAngle() + mouseDeltaY * 0.75);
-//            System.out.println("ry.getAngle() = " + ry.getAngle());
+            double mag = Math.sqrt(mouseDeltaX * mouseDeltaX + mouseDeltaY * mouseDeltaY);
+            Vector3D axis = new Vector3D(-mouseDeltaX / mag, mouseDeltaY / mag, 0).normalize().crossProduct(Vector3D.PLUS_K);
+//            ry.setAngle(ry.getAngle() + mouseDeltaX * 0.75);
+////            System.out.println("rx.getAngle() = " + rx.getAngle());
+//            rx.setAngle(rx.getAngle() + mouseDeltaY * 0.75);
+////            System.out.println("ry.getAngle() = " + ry.getAngle());
+            composeRotation(mag, axis, rxy);
         }
         updateTransformsText();
     }
@@ -572,12 +638,14 @@ public class Scene3DController {
                 .collect(Collectors.joining("*"));
     }
 
+    private final static Point3D Z1Point = new Point3D(0, 0, 1);
+
     void yPosView() {
         t.setX(0);
         t.setY(0);
         t.setZ(0);
-        rx.setAngle(0);
-        ry.setAngle(0);
+        rxy.setAngle(0);
+        rxy.setAxis(Z1Point);
         rz.setAngle(0);
         s.setX(1);
         s.setY(1);
@@ -595,8 +663,8 @@ public class Scene3DController {
         t.setX(0);
         t.setY(0);
         t.setZ(0);
-        rx.setAngle(0);
-        ry.setAngle(0);
+        rxy.setAngle(0);
+        rxy.setAxis(Z1Point);
         rz.setAngle(0);
         s.setX(1);
         s.setY(1);
@@ -614,8 +682,8 @@ public class Scene3DController {
         t.setX(0);
         t.setY(0);
         t.setZ(0);
-        rx.setAngle(0);
-        ry.setAngle(0);
+        rxy.setAngle(0);
+        rxy.setAxis(Z1Point);
         rz.setAngle(0);
         s.setX(1);
         s.setY(1);
@@ -633,8 +701,8 @@ public class Scene3DController {
         t.setX(0);
         t.setY(0);
         t.setZ(0);
-        rx.setAngle(0);
-        ry.setAngle(0);
+        rxy.setAngle(0);
+        rxy.setAxis(Z1Point);
         rz.setAngle(0);
         s.setX(1);
         s.setY(1);
@@ -652,8 +720,8 @@ public class Scene3DController {
         t.setX(0);
         t.setY(0);
         t.setZ(0);
-        rx.setAngle(0);
-        ry.setAngle(0);
+        rxy.setAngle(0);
+        rxy.setAxis(Z1Point);
         rz.setAngle(0);
         s.setX(1);
         s.setY(1);
@@ -671,8 +739,8 @@ public class Scene3DController {
         t.setX(0);
         t.setY(0);
         t.setZ(0);
-        rx.setAngle(0);
-        ry.setAngle(0);
+        rxy.setAngle(0);
+        rxy.setAxis(Z1Point);
         rz.setAngle(0);
         s.setX(1);
         s.setY(1);
@@ -860,20 +928,19 @@ public class Scene3DController {
         this.lastMouseEvent = lastMouseEvent;
     }
 
-    /**
-     * @return the rx
-     */
-    public Rotate getRx() {
-        return rx;
-    }
-
-    /**
-     * @param rx the rx to set
-     */
-    public void setRx(Rotate rx) {
-        this.rx = rx;
-    }
-
+//    /**
+//     * @return the rx
+//     */
+//    public Rotate getRx() {
+//        return rx;
+//    }
+//
+//    /**
+//     * @param rx the rx to set
+//     */
+//    public void setRx(Rotate rx) {
+//        this.rx = rx;
+//    }
     /**
      * @return the s
      */
@@ -888,20 +955,19 @@ public class Scene3DController {
         this.s = s;
     }
 
-    /**
-     * @return the ry
-     */
-    public Rotate getRy() {
-        return ry;
-    }
-
-    /**
-     * @param ry the ry to set
-     */
-    public void setRy(Rotate ry) {
-        this.ry = ry;
-    }
-
+//    /**
+//     * @return the ry
+//     */
+//    public Rotate getRy() {
+//        return ry;
+//    }
+//
+//    /**
+//     * @param ry the ry to set
+//     */
+//    public void setRy(Rotate ry) {
+//        this.ry = ry;
+//    }
     /**
      * @return the rzmain
      */
@@ -984,6 +1050,11 @@ public class Scene3DController {
      */
     public void setDistScale(double distScale) {
         this.distScale = distScale;
+        this.refreshScene(tracksList);
+    }
+
+    public void autoSetScale() {
+
     }
 
     /**
@@ -998,6 +1069,68 @@ public class Scene3DController {
      */
     public void setShowRotationFrames(boolean showRotationFrames) {
         this.showRotationFrames = showRotationFrames;
+    }
+
+//    public void autoSetScale(MainJFrame mainJFrame) throws NumberFormatException {
+//        mainJFrame.view3DPlotJPanel1.autoSetScale();
+//    }
+    /**
+     * Set the value of tracksList
+     *
+     * @param TracksList new value of tracksList
+     */
+    public void setTracksList(List<List<Track>> TracksList) {
+        this.tracksList = TracksList;
+        updateTracksList(this.tracksList);
+    }
+
+    /**
+     * Set the value of tracksList
+     *
+     * @param TracksList new value of tracksList
+     */
+    public void setSingleTrack(Track track) {
+        if (null != this.tracksList) {
+            this.tracksList.clear();
+        } else {
+            this.tracksList = new LinkedList<>();
+        }
+        List<Track> l = new LinkedList<>();
+        l.add(track);
+        this.tracksList.add(l);
+        updateTracksList(this.tracksList);
+    }
+
+    /**
+     * Get the value of tracksList
+     *
+     * @return the value of tracksList
+     */
+    public List<List<Track>> getTracksList() {
+        return tracksList;
+    }
+
+    /**
+     *
+     * @param track the value of track
+     */
+    public void addTrack(Track track) {
+        if (null == tracksList) {
+            tracksList = new ArrayList<>();
+        }
+        List<Track> trackList = tracksList.size() > 0 ? tracksList.get(0) : null;
+        if (null == trackList) {
+            trackList = new ArrayList<>();
+            tracksList.add(trackList);
+        }
+        List<TrackPoint> data = track.getData();
+        if (null == data || data.size() < 1) {
+            return;
+        }
+        track.currentPoint = data.get(data.size() - 1);
+        track.cur_time_index = data.size() - 1;
+        trackList.add(track);
+        this.setTracksList(tracksList);
     }
 
 }
