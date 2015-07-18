@@ -28,12 +28,12 @@ import rcs.posemath.Posemath;
 public class TrackUtils {
 
     /**
+     * Gets a scale value by looking at min and max points.
      *
      * @param tracksList the value of tracksList
      * @return the double
-     * @throws NumberFormatException
      */
-    public static double getAutoScale(List<? extends List<? extends Track>> tracksList) throws NumberFormatException {
+    public static double getAutoScale(List<? extends List<? extends Track>> tracksList) {
         double newDistScale = 1.0; // Double.valueOf(this.jTextFieldDistScale.getText());
         double minx = minStream(TrackUtils.allPoints(tracksList), (TrackPoint x) -> x.x);
         double maxx = maxStream(TrackUtils.allPoints(tracksList), (TrackPoint x) -> x.x);
@@ -110,8 +110,10 @@ public class TrackUtils {
     }
 
     /**
+     * Convert all lists to a single stream.
      *
      * @param tracksList the value of tracksList
+     * @return Stream of all points on all lists
      */
     public static Stream<TrackPoint> allPoints(List<? extends List<? extends Track>> tracksList) {
         return tracksList
@@ -122,7 +124,9 @@ public class TrackUtils {
     }
 
     /**
+     * Map all elements of a stream to a double and get the max.
      *
+     * @param <T> Type of Stream which must match type of mapper
      * @param stream the value of stream
      * @param mapper the value of mapper
      * @return the double
@@ -132,7 +136,9 @@ public class TrackUtils {
     }
 
     /**
+     * Map all elements of a stream to a double and get the min.
      *
+     * @param <T> Type of Stream which must match type of mapper
      * @param stream the value of stream
      * @param mapper the value of mapper
      * @return the double
@@ -143,7 +149,7 @@ public class TrackUtils {
 
     static public Track readTrack(CsvParseOptions options, File f) {
         Track track = new Track();
-        track.setData(new ArrayList<TrackPoint>());
+        track.setData(new ArrayList<>());
         try (final BufferedReader br = new BufferedReader(new FileReader(f))) {
             // ignore header
             br.readLine();

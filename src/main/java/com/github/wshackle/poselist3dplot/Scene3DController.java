@@ -133,9 +133,11 @@ public class Scene3DController {
     }
 
     /**
+     * Create a 3D Scene
      *
      * @param w the value of w
      * @param h the value of h
+     * @return new Scene
      */
     public Scene create3DScene(int w, int h) {
         Group root = new Group();
@@ -160,10 +162,12 @@ public class Scene3DController {
     }
 
     /**
+     * Create a 3D SubScene
      *
      * @param parent the value of parent
      * @param w the value of w
      * @param h the value of h
+     * @return new SubScene
      */
     public SubScene create3DSubScene(Parent parent, double w, double h) {
         SubScene scene3D = new SubScene(parent, w, h, true, SceneAntialiasing.BALANCED);
@@ -610,7 +614,7 @@ public class Scene3DController {
     /**
      * Add PropertyChangeListener.
      *
-     * @param listener
+     * @param listener listener to add
      */
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         propertyChangeSupport.addPropertyChangeListener(listener);
@@ -619,7 +623,7 @@ public class Scene3DController {
     /**
      * Remove PropertyChangeListener.
      *
-     * @param listener
+     * @param listener Listener to remove
      */
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         propertyChangeSupport.removePropertyChangeListener(listener);
@@ -1085,9 +1089,10 @@ public class Scene3DController {
     }
 
     /**
-     * Set the value of tracksList
+     * Remove all other tracks and set this as the only track in the list,
+     * creating a new list if necessary.
      *
-     * @param TracksList new value of tracksList
+     * @param track Track to set.
      */
     public void setSingleTrack(Track track) {
         if (null != this.tracksList) {

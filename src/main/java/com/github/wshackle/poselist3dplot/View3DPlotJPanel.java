@@ -20,14 +20,9 @@
  */
 package com.github.wshackle.poselist3dplot;
 
-import static com.github.wshackle.poselist3dplot.TrackUtils.maxStream;
-import static com.github.wshackle.poselist3dplot.TrackUtils.minStream;
 import java.awt.BorderLayout;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -165,9 +160,9 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
     }
 
     /**
-     * Set the value of tracksList
+     * Remove all other tracks and set a track to be the only one.
      *
-     * @param TracksList new value of tracksList
+     * @param track new value single track
      */
     public void setSingleTrack(Track track) {
         scene3DController.setSingleTrack(track);
@@ -735,12 +730,11 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
     }
 
     /**
-     *
+     * Get an automatic scale based on min and max points.
      * @param tracksList the value of tracksList
-     * @return the double
-     * @throws NumberFormatException
+     * @return scale value
      */
-    public static double getAutoScale(List<? extends List<? extends Track>> tracksList) throws NumberFormatException {
+    public static double getAutoScale(List<? extends List<? extends Track>> tracksList)  {
         return TrackUtils.getAutoScale(tracksList);
     }
 

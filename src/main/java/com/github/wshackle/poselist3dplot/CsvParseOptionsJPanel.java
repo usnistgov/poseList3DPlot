@@ -395,7 +395,7 @@ public class CsvParseOptionsJPanel extends javax.swing.JPanel {
     /**
      * Set the value of delimiter
      *
-     * @param _delimiter
+     * @param _delimiter delimiter for separating fields
      */
     public void setDelimiter(String _delimiter) {
         options.delim = _delimiter;
