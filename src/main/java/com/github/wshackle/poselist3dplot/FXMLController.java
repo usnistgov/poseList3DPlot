@@ -14,9 +14,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.SubScene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
@@ -24,8 +26,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class FXMLController implements Initializable {
 
@@ -50,7 +50,6 @@ public class FXMLController implements Initializable {
     private Scene3DController scene3DController = null;
     @FXML
     private RadioButton radioRotateXY;
-    @FXML
     private RadioButton radioRotateZ;
     @FXML
     private RadioButton radioTranslateXY;
@@ -62,6 +61,12 @@ public class FXMLController implements Initializable {
     private MenuItem menuItemTest1;
     @FXML
     private MenuItem menuItemOpenCSVFile;
+    @FXML
+    private MenuItem setDistanceScale;
+    @FXML
+    private CheckMenuItem showRotationFrames;
+    @FXML
+    private MenuItem autoSetDistanceScale;
 
     private void closeWindow() {
         System.err.println("trying to close window");
@@ -125,6 +130,18 @@ public class FXMLController implements Initializable {
 
     }
 
+    private void queryDistanceScale() {
+        TextInputDialog dialog = new TextInputDialog("" + scene3DController.getDistScale());
+        dialog.setTitle("Distance Scale");
+        dialog.setHeaderText("Set Distance Scale (pixels/m)");
+//        dialog.setContentText("Distance Scale");
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent((String val) ->  {
+            double newScale = Double.valueOf(val);
+            scene3DController.setDistScale(newScale);
+        });
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
@@ -158,7 +175,7 @@ public class FXMLController implements Initializable {
         zPlusButton.setOnAction(e -> scene3DController.zPosView());
         final ToggleGroup dragModeToggleGroup = new ToggleGroup();
         radioRotateXY.setToggleGroup(dragModeToggleGroup);
-        radioRotateZ.setToggleGroup(dragModeToggleGroup);
+//        radioRotateZ.setToggleGroup(dragModeToggleGroup);
         radioTranslateXY.setToggleGroup(dragModeToggleGroup);
         radioTranslateZ.setToggleGroup(dragModeToggleGroup);
         menuFileClose.setOnAction(e -> closeWindow());
@@ -166,6 +183,11 @@ public class FXMLController implements Initializable {
             scene3DController.setSingleTrack(TrackUtils.getTest1Track());
             autoSetScale();
         });
+        showRotationFrames.setOnAction(e -> {
+            scene3DController.setShowRotationFrames(showRotationFrames.isSelected());
+            scene3DController.refreshScene(scene3DController.tracksList);
+        });
+        setDistanceScale.setOnAction(e -> queryDistanceScale());
         dragModeToggleGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
 
             @Override
@@ -174,8 +196,8 @@ public class FXMLController implements Initializable {
                 View3DDragEnum orig_de = de;
                 if (newValue == radioRotateXY) {
                     de = View3DDragEnum.ROT_XY;
-                } else if (newValue == radioRotateZ) {
-                    de = View3DDragEnum.ROT_Z;
+//                } else if (newValue == radioRotateZ) {
+//                    de = View3DDragEnum.ROT_Z;
                 } else if (newValue == radioTranslateXY) {
                     de = View3DDragEnum.TRAN_XY;
                 } else if (newValue == radioTranslateZ) {
@@ -188,6 +210,7 @@ public class FXMLController implements Initializable {
             }
         });
         menuItemOpenCSVFile.setOnAction(e -> chooseAndOpenCsvFile());
+        autoSetDistanceScale.setOnAction(e -> scene3DController.autoSetScale());
     }
 
 }

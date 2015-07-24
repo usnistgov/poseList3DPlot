@@ -203,7 +203,6 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         jRadioButtonTranXY = new javax.swing.JRadioButton();
         jRadioButtonRotXY = new javax.swing.JRadioButton();
         jRadioButtonTranZ = new javax.swing.JRadioButton();
-        jRadioButtonRotZ = new javax.swing.JRadioButton();
         jPanelSelectView = new javax.swing.JPanel();
         jButtonZNegView = new javax.swing.JButton();
         jButtonYNegView = new javax.swing.JButton();
@@ -289,19 +288,6 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             }
         });
 
-        buttonGroupDragEnum.add(jRadioButtonRotZ);
-        jRadioButtonRotZ.setText("Rot(Z)");
-        jRadioButtonRotZ.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                jRadioButtonRotZItemStateChanged(evt);
-            }
-        });
-        jRadioButtonRotZ.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jRadioButtonRotZActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout jPanelDragChoicesLayout = new javax.swing.GroupLayout(jPanelDragChoices);
         jPanelDragChoices.setLayout(jPanelDragChoicesLayout);
         jPanelDragChoicesLayout.setHorizontalGroup(
@@ -309,8 +295,6 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             .addGroup(jPanelDragChoicesLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jRadioButtonRotXY)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jRadioButtonRotZ)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jRadioButtonTranXY)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -323,7 +307,6 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(jPanelDragChoicesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jRadioButtonRotXY)
-                    .addComponent(jRadioButtonRotZ)
                     .addComponent(jRadioButtonTranXY)
                     .addComponent(jRadioButtonTranZ))
                 .addContainerGap())
@@ -563,9 +546,10 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
                 break;
 
             case ROT_Z:
-                if (null != this.jRadioButtonRotZ && !this.jRadioButtonRotZ.isSelected()) {
-                    this.jRadioButtonRotZ.setSelected(true);
-                }
+//                if (null != this.jRadioButtonRotZ && !this.jRadioButtonRotZ.isSelected()) {
+//                    this.jRadioButtonRotZ.setSelected(true);
+//                }
+                // This option was confusing and unnecessary. One can/should always just use ROTXY
                 break;
 
             case TRAN_XY:
@@ -607,10 +591,11 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
             if (scene3DController.getDragEnum() != View3DDragEnum.ROT_XY) {
                 this.setDragEnum(View3DDragEnum.ROT_XY);
             }
-        } else if (this.jRadioButtonRotZ.isSelected()) {
-            if (scene3DController.getDragEnum() != View3DDragEnum.ROT_Z) {
-                this.setDragEnum(View3DDragEnum.ROT_Z);
-            }
+            // RoTZ disabled, use ROTXY instead
+//        } else if (this.jRadioButtonRotZ.isSelected()) {
+//            if (scene3DController.getDragEnum() != View3DDragEnum.ROT_Z) {
+//                this.setDragEnum(View3DDragEnum.ROT_Z);
+//            }
         } else if (this.jRadioButtonTranXY.isSelected()) {
             if (scene3DController.getDragEnum() != View3DDragEnum.TRAN_XY) {
                 this.setDragEnum(View3DDragEnum.TRAN_XY);
@@ -631,10 +616,6 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         updateDragEnum();
     }//GEN-LAST:event_jRadioButtonRotXYActionPerformed
 
-    private void jRadioButtonRotZActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButtonRotZActionPerformed
-        updateDragEnum();
-    }//GEN-LAST:event_jRadioButtonRotZActionPerformed
-
     private void jRadioButtonTranXYActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButtonTranXYActionPerformed
         updateDragEnum();
     }//GEN-LAST:event_jRadioButtonTranXYActionPerformed
@@ -646,10 +627,6 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
     private void jRadioButtonRotXYItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jRadioButtonRotXYItemStateChanged
         updateDragEnum();
     }//GEN-LAST:event_jRadioButtonRotXYItemStateChanged
-
-    private void jRadioButtonRotZItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jRadioButtonRotZItemStateChanged
-        updateDragEnum();
-    }//GEN-LAST:event_jRadioButtonRotZItemStateChanged
 
     private void jRadioButtonTranXYItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jRadioButtonTranXYItemStateChanged
         updateDragEnum();
@@ -723,11 +700,12 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
         autoSetScale();
     }//GEN-LAST:event_jButtonSetScaleActionPerformed
 
-    public void autoSetScale() throws NumberFormatException {
-        double newDistScale = getAutoScale(scene3DController.tracksList);
-        this.jTextFieldDistScale.setText(String.format("%.1g", newDistScale * 100.0));
-        this.setDistScale(newDistScale);
+    public void autoSetScale() {
+        scene3DController.autoSetScale();
+        this.jTextFieldDistScale.setText(String.format("%.1g", scene3DController.getDistScale() * 100.0));
     }
+
+    
 
     /**
      * Get an automatic scale based on min and max points.
@@ -796,7 +774,6 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
     private javax.swing.JPanel jPanelSelectView;
     private javax.swing.JPanel jPanelTransformText;
     private javax.swing.JRadioButton jRadioButtonRotXY;
-    private javax.swing.JRadioButton jRadioButtonRotZ;
     private javax.swing.JRadioButton jRadioButtonTranXY;
     private javax.swing.JRadioButton jRadioButtonTranZ;
     private javax.swing.JTabbedPane jTabbedPane1;

@@ -50,12 +50,18 @@
                 <MenuItem fx:id="menuItemTest1" mnemonicParsing="false" text="Test 1" />
               </items>
             </Menu>
+            <Menu mnemonicParsing="false" text="Options">
+              <items>
+                <MenuItem fx:id="setDistanceScale" mnemonicParsing="false" text="Set Distance Scale ..." />
+                  <MenuItem fx:id="autoSetDistanceScale" mnemonicParsing="false" text="Automatically Set Distance Scale" />
+                  <CheckMenuItem fx:id="showRotationFrames" mnemonicParsing="false" text="Show Rotation Frames" />
+              </items>
+            </Menu>
         </menus>
       </MenuBar>
       <ToolBar GridPane.rowIndex="2">
          <items>
-            <RadioButton fx:id="radioRotateXY" mnemonicParsing="false" selected="true" text="Rotate(XY)" />
-            <RadioButton fx:id="radioRotateZ" mnemonicParsing="false" text="Rotate(Z)" />
+            <RadioButton fx:id="radioRotateXY" mnemonicParsing="false" selected="true" text="Rotate" />
             <RadioButton fx:id="radioTranslateXY" mnemonicParsing="false" text="Translate(XY)" />
             <RadioButton fx:id="radioTranslateZ" mnemonicParsing="false" text="Translate(Z)" />
          </items>

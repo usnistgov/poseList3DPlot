@@ -5,6 +5,7 @@
  */
 package com.github.wshackle.poselist3dplot;
 
+import static com.github.wshackle.poselist3dplot.View3DPlotJPanel.getAutoScale;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
@@ -778,7 +779,7 @@ public class Scene3DController {
             g.getChildren().clear();
         }
         getTrackCurPosGroupMap().clear();
-        xNegView();
+//        xNegView();
     }
 
     /**
@@ -1058,7 +1059,8 @@ public class Scene3DController {
     }
 
     public void autoSetScale() {
-
+       double newDistScale = getAutoScale(tracksList);
+        this.setDistScale(newDistScale);
     }
 
     /**

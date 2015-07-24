@@ -110,11 +110,9 @@
               <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jRadioButtonRotXY" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
-                  <Component id="jRadioButtonRotZ" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Component id="jRadioButtonTranXY" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Component id="jRadioButtonTranZ" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
@@ -126,7 +124,6 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" alignment="0" groupAlignment="3" attributes="0">
                       <Component id="jRadioButtonRotXY" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jRadioButtonRotZ" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jRadioButtonTranXY" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jRadioButtonTranZ" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
@@ -170,18 +167,6 @@
           <Events>
             <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="jRadioButtonTranZItemStateChanged"/>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jRadioButtonTranZActionPerformed"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JRadioButton" name="jRadioButtonRotZ">
-          <Properties>
-            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-              <ComponentRef name="buttonGroupDragEnum"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Rot(Z)"/>
-          </Properties>
-          <Events>
-            <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="jRadioButtonRotZItemStateChanged"/>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jRadioButtonRotZActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>
