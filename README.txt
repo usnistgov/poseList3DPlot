@@ -49,3 +49,16 @@ https://travis-ci.org/usnistgov/poseList3DPlot
 Pre-built Snapshot Jars can be downloaded from:
 https://oss.sonatype.org/content/repositories/snapshots/com/github/wshackle/poseList3DPlot/1.0-SNAPSHOT/
 
+To install snapshot ( see http://central.sonatype.org/pages/apache-maven.html ):
+(A signature & passphrase required, or change the group id to use a different signature).
+
+mvn -Prelease deploy
+
+To install to maven central:
+
+mvn release:clean release:prepare
+( accept all defaults to questions asked in terminal) 
+
+mvn release:perform
+
+
