@@ -29,10 +29,15 @@ public class MainJFrame extends javax.swing.JFrame {
     public MainJFrame() {
         initComponents();
     }
-
+    
+   
+    private static MainJFrame mjfForShowList = null;
     public static MainJFrame showPoseList(final List<? extends PmPose> l) {
 
-        final MainJFrame mjf = new MainJFrame();
+        if(null == mjfForShowList) {
+            mjfForShowList = new MainJFrame();
+        }
+        final MainJFrame mjf = mjfForShowList;
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             @Override
@@ -40,7 +45,7 @@ public class MainJFrame extends javax.swing.JFrame {
                 if (null != l) {
                     mjf.view3DPlotJPanel1.addTrack(TrackUtils.toTrack(l));
                 }
-                mjf.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                mjf.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
                 mjf.setVisible(true);
             }
         });
@@ -191,7 +196,7 @@ public class MainJFrame extends javax.swing.JFrame {
 
     private void jMenuItemClearAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemClearAllActionPerformed
         List<List<Track>> tracksList = this.view3DPlotJPanel1.getTracksList();
-        if (null == tracksList) {
+        if (null != tracksList) {
             tracksList.clear();
         }
         this.view3DPlotJPanel1.setTracksList(null);

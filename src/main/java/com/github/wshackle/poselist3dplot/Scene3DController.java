@@ -112,12 +112,16 @@ public class Scene3DController {
             return;
         }
         Set<Group> matchedGroups = new HashSet<>();
+        Map<List<Track>, Group> groupMap = getTrackListGroupMap();
         for (List<Track> lt : tracksList) {
-            Group g = getTrackListGroupMap().get(lt);
-            if (null == g) {
-                g = new Group();
-                TracksGroup.getChildren().add(g);
-                getTrackListGroupMap().put(lt, g);
+            Group g = null;
+            synchronized (groupMap) {
+                g = groupMap.get(lt);
+                if (null == g) {
+                    g = new Group();
+                    TracksGroup.getChildren().add(g);
+                    groupMap.put(lt, g);
+                }
             }
             if (!TracksGroup.getChildren().contains(g)) {
                 TracksGroup.getChildren().add(g);
@@ -125,10 +129,13 @@ public class Scene3DController {
             this.updateTrackList(g, lt);
             matchedGroups.add(g);
         }
-        for (Map.Entry<List<Track>, Group> entry : getTrackListGroupMap().entrySet()) {
-            if (!matchedGroups.contains(entry.getValue())) {
-                entry.getValue().getChildren().clear();
-                getTrackListGroupMap().remove(entry.getKey());
+        groupMap = getTrackListGroupMap();
+        synchronized (groupMap) {
+            for (Map.Entry<List<Track>, Group> entry : groupMap.entrySet()) {
+                if (!matchedGroups.contains(entry.getValue())) {
+                    entry.getValue().getChildren().clear();
+                    groupMap.remove(entry.getKey());
+                }
             }
         }
     }
@@ -448,7 +455,7 @@ public class Scene3DController {
         Point3D p = rxy.getAxis();
         Rotation rot1 = new Rotation(new Vector3D(p.getX(), p.getY(), p.getZ()),
                 Math.toRadians(rxy.getAngle()));
-        Rotation rot2 =new Rotation(axis, Math.toRadians(r));
+        Rotation rot2 = new Rotation(axis, Math.toRadians(r));
 //        System.out.println("rot1 = " + rot1);
 //        System.out.println("rot1.getAxis() = " + rot1.getAxis());
 //        System.out.println("rot1.getAngle() = " + rot1.getAngle());
@@ -767,10 +774,13 @@ public class Scene3DController {
     }
 
     public void clear() {
-        for (Group g : getTrackListGroupMap().values()) {
-            g.getChildren().clear();
+        Map<List<Track>, Group> trackListGroupMap = getTrackListGroupMap();
+        synchronized (trackListGroupMap) {
+            for (Group g : trackListGroupMap.values()) {
+                g.getChildren().clear();
+            }
+            trackListGroupMap.clear();
         }
-        getTrackListGroupMap().clear();
         for (Group g : getTrackGroupMap().values()) {
             g.getChildren().clear();
         }
@@ -779,7 +789,6 @@ public class Scene3DController {
             g.getChildren().clear();
         }
         getTrackCurPosGroupMap().clear();
-//        xNegView();
     }
 
     /**
@@ -1059,7 +1068,7 @@ public class Scene3DController {
     }
 
     public void autoSetScale() {
-       double newDistScale = getAutoScale(tracksList);
+        double newDistScale = getAutoScale(tracksList);
         this.setDistScale(newDistScale);
     }
 
