@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javafx.application.Platform;
@@ -97,10 +98,10 @@ public class Scene3DController {
     private Scale s = new Scale();
     private Rotate rxy = new Rotate(0, Rotate.Y_AXIS);
     private Rotate rzmain = new Rotate(0, Rotate.Z_AXIS);
-    private HashMap<Track, Group> trackGroupMap = new HashMap<>();
-    private HashMap<List<Track>, Group> trackListGroupMap = new HashMap<>();
+    final private Map<Track, Group> trackGroupMap = new ConcurrentHashMap<>();
+    final private Map<List<Track>, Group> trackListGroupMap = new ConcurrentHashMap<>();
     private Group TracksGroup = null;
-    private HashMap<Track, Group> trackCurPosGroupMap = new HashMap<>();
+    private Map<Track, Group> trackCurPosGroupMap = new ConcurrentHashMap<>();
     private View3DDragEnum dragEnum = View3DDragEnum.ROT_XY;
     private double distScale = 100.0;
     private boolean showRotationFrames = false;
@@ -999,35 +1000,22 @@ public class Scene3DController {
     /**
      * @return the trackGroupMap
      */
-    public HashMap<Track, Group> getTrackGroupMap() {
+    public Map<Track, Group> getTrackGroupMap() {
         return trackGroupMap;
     }
 
-    /**
-     * @param trackGroupMap the trackGroupMap to set
-     */
-    public void setTrackGroupMap(HashMap<Track, Group> trackGroupMap) {
-        this.trackGroupMap = trackGroupMap;
-    }
 
     /**
      * @return the trackListGroupMap
      */
-    public HashMap<List<Track>, Group> getTrackListGroupMap() {
+    public Map<List<Track>, Group> getTrackListGroupMap() {
         return trackListGroupMap;
-    }
-
-    /**
-     * @param trackListGroupMap the trackListGroupMap to set
-     */
-    public void setTrackListGroupMap(HashMap<List<Track>, Group> trackListGroupMap) {
-        this.trackListGroupMap = trackListGroupMap;
     }
 
     /**
      * @return the trackCurPosGroupMap
      */
-    public HashMap<Track, Group> getTrackCurPosGroupMap() {
+    public Map<Track, Group> getTrackCurPosGroupMap() {
         return trackCurPosGroupMap;
     }
 
