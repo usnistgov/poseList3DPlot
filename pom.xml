@@ -4,7 +4,7 @@
 
     <groupId>com.github.wshackle</groupId>
     <artifactId>poseList3DPlot</artifactId>
-    <version>1.1</version>
+    <version>1.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>poseList3DPlot</name>
@@ -37,7 +37,7 @@
         <connection>scm:git:git@github.com:wshackle/poseList3DPlot.git</connection>
         <developerConnection>scm:git:git@github.com:wshackle/poseList3DPlot.git</developerConnection>
         <url>https://github.com/wshackle/poseList3DPlot</url>
-        <tag>poseList3DPlot-1.1</tag>
+        <tag>HEAD</tag>
     </scm>
     <url>https://github.com/wshackle/poseList3DPlot</url>
     <properties>
