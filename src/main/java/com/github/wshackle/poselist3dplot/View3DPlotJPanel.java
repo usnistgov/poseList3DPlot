@@ -141,6 +141,10 @@ public class View3DPlotJPanel extends javax.swing.JPanel {
 
     private Scene3DController scene3DController = new Scene3DController();
     
+    public void queryPointSize() {
+        Platform.runLater(scene3DController::queryPointSize);
+    }
+    
     private void initFxScene() {
         fxpanel.setScene(scene3DController.create3DScene(Math.max(this.jPanel1.getPreferredSize().width, this.jPanel1.getSize().width),
                         Math.max(this.jPanel1.getPreferredSize().height, this.jPanel1.getSize().height)

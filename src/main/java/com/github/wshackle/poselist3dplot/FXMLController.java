@@ -67,6 +67,8 @@ public class FXMLController implements Initializable {
     private CheckMenuItem showRotationFrames;
     @FXML
     private MenuItem autoSetDistanceScale;
+    @FXML
+    private MenuItem menuItemSetPointSize;
 
     private void closeWindow() {
         System.err.println("trying to close window");
@@ -211,6 +213,7 @@ public class FXMLController implements Initializable {
         });
         menuItemOpenCSVFile.setOnAction(e -> chooseAndOpenCsvFile());
         autoSetDistanceScale.setOnAction(e -> scene3DController.autoSetScale());
+        menuItemSetPointSize.setOnAction(e -> scene3DController.queryPointSize());
     }
 
 }

@@ -55,6 +55,7 @@
                 <MenuItem fx:id="setDistanceScale" mnemonicParsing="false" text="Set Distance Scale ..." />
                   <MenuItem fx:id="autoSetDistanceScale" mnemonicParsing="false" text="Automatically Set Distance Scale" />
                   <CheckMenuItem fx:id="showRotationFrames" mnemonicParsing="false" text="Show Rotation Frames" />
+                  <MenuItem fx:id="menuItemSetPointSize" mnemonicParsing="false" text="Set Point Size ..." />
               </items>
             </Menu>
         </menus>

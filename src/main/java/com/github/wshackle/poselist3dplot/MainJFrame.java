@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -68,9 +69,12 @@ public class MainJFrame extends javax.swing.JFrame {
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItemClearAll = new javax.swing.JMenuItem();
         jMenuItemSave = new javax.swing.JMenuItem();
-        jMenu2 = new javax.swing.JMenu();
         jMenu3 = new javax.swing.JMenu();
         jMenuItemTest1 = new javax.swing.JMenuItem();
+        jMenuOptions = new javax.swing.JMenu();
+        jMenuItemAutoSetDistanceScale = new javax.swing.JMenuItem();
+        jMenuItemSetDistanceScale = new javax.swing.JMenuItem();
+        jMenuItemSetPointSize = new javax.swing.JMenuItem();
 
         FormListener formListener = new FormListener();
 
@@ -93,9 +97,6 @@ public class MainJFrame extends javax.swing.JFrame {
 
         jMenuBar1.add(jMenu1);
 
-        jMenu2.setText("Edit");
-        jMenuBar1.add(jMenu2);
-
         jMenu3.setText("Test/Demo");
 
         jMenuItemTest1.setText("Test 1");
@@ -103,6 +104,21 @@ public class MainJFrame extends javax.swing.JFrame {
         jMenu3.add(jMenuItemTest1);
 
         jMenuBar1.add(jMenu3);
+
+        jMenuOptions.setText("Options");
+
+        jMenuItemAutoSetDistanceScale.setText("Auto Set Distance Scale ");
+        jMenuItemAutoSetDistanceScale.addActionListener(formListener);
+        jMenuOptions.add(jMenuItemAutoSetDistanceScale);
+
+        jMenuItemSetDistanceScale.setText("Set Distance Scale ...");
+        jMenuOptions.add(jMenuItemSetDistanceScale);
+
+        jMenuItemSetPointSize.setText("Set Point Size ...");
+        jMenuItemSetPointSize.addActionListener(formListener);
+        jMenuOptions.add(jMenuItemSetPointSize);
+
+        jMenuBar1.add(jMenuOptions);
 
         setJMenuBar(jMenuBar1);
 
@@ -142,6 +158,12 @@ public class MainJFrame extends javax.swing.JFrame {
             }
             else if (evt.getSource() == jMenuItemTest1) {
                 MainJFrame.this.jMenuItemTest1ActionPerformed(evt);
+            }
+            else if (evt.getSource() == jMenuItemSetPointSize) {
+                MainJFrame.this.jMenuItemSetPointSizeActionPerformed(evt);
+            }
+            else if (evt.getSource() == jMenuItemAutoSetDistanceScale) {
+                MainJFrame.this.jMenuItemAutoSetDistanceScaleActionPerformed(evt);
             }
         }
     }// </editor-fold>//GEN-END:initComponents
@@ -224,6 +246,14 @@ public class MainJFrame extends javax.swing.JFrame {
         this.view3DPlotJPanel1.autoSetScale();
     }//GEN-LAST:event_jMenuItemTest1ActionPerformed
 
+    private void jMenuItemSetPointSizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemSetPointSizeActionPerformed
+        this.view3DPlotJPanel1.queryPointSize();
+    }//GEN-LAST:event_jMenuItemSetPointSizeActionPerformed
+
+    private void jMenuItemAutoSetDistanceScaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemAutoSetDistanceScaleActionPerformed
+        this.view3DPlotJPanel1.autoSetScale();
+    }//GEN-LAST:event_jMenuItemAutoSetDistanceScaleActionPerformed
+
     public static Track getTest1Track() {
         return TrackUtils.getTest1Track();
     }
@@ -275,13 +305,16 @@ public class MainJFrame extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItemAutoSetDistanceScale;
     private javax.swing.JMenuItem jMenuItemClearAll;
     private javax.swing.JMenuItem jMenuItemSave;
+    private javax.swing.JMenuItem jMenuItemSetDistanceScale;
+    private javax.swing.JMenuItem jMenuItemSetPointSize;
     private javax.swing.JMenuItem jMenuItemTest1;
+    private javax.swing.JMenu jMenuOptions;
     private com.github.wshackle.poselist3dplot.View3DPlotJPanel view3DPlotJPanel1;
     // End of variables declaration//GEN-END:variables
 }

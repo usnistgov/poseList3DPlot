@@ -29,6 +29,7 @@ import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -244,6 +245,36 @@ public class Scene3DController {
         Group axisGroup = new Group(redBox, blueBox, greenBox);
         return axisGroup;
     }
+    
+    private double curPosPointSize = 6;
+    private double pointSize = 3.0;
+
+    public double getCurPosPointSize() {
+        return curPosPointSize;
+    }
+
+    public void setCurPosPointSize(double curPosPointSize) {
+        this.curPosPointSize = curPosPointSize;
+    }
+
+    public double getPointSize() {
+        return pointSize;
+    }
+
+    public void setPointSize(double pointSize) {
+        this.pointSize = pointSize;
+    }
+    
+    
+    public void queryPointSize() {
+        TextInputDialog tid = new TextInputDialog(Double.toString(curPosPointSize));
+        tid.setTitle("Current Position Point Size");
+        tid.showAndWait().map(Double::valueOf).ifPresent(this::setCurPosPointSize);
+        tid = new TextInputDialog(Double.toString(pointSize));
+        tid.setTitle("Point Size");
+        tid.showAndWait().map(Double::valueOf).ifPresent(this::setPointSize);
+        this.refreshScene(tracksList);
+    }
 
     private void updateTrack(Group trackGroup, Group curPosGroup, Track track) {
         if (null == track) {
@@ -271,7 +302,7 @@ public class Scene3DController {
         lineMaterial.setDiffuseColor(lineColor);
         if (null != track.currentPoint) {
             if (curPosGroup.getChildren().size() < 2) {
-                Sphere sphere = new Sphere(12.0);
+                Sphere sphere = new Sphere(curPosPointSize);
                 sphere.setMaterial(ptMaterial);
                 Text txt = new Text(track.name);
                 txt.setTranslateX(20.0);
@@ -297,7 +328,7 @@ public class Scene3DController {
             Rotation rot = new Rotation(Vector3D.PLUS_J, new Vector3D(tp.x - last_tp.x, tp.y - last_tp.y, tp.z - last_tp.z));
             cyl.getTransforms().addAll(new Translate(last_tp.x * getDistScale(), last_tp.y * getDistScale(), last_tp.z * getDistScale()), new Rotate(Math.toDegrees(rot.getAngle()), new Point3D(rot.getAxis().getX(), rot.getAxis().getY(), rot.getAxis().getZ())), new Translate(0, dist * getDistScale() / 2.0, 0));
             cyl.setMaterial(lineMaterial);
-            Sphere sphere = new Sphere(5.0);
+            Sphere sphere = new Sphere(pointSize);
             sphere.setTranslateX(tp.x * getDistScale());
             sphere.setTranslateY(tp.y * getDistScale());
             sphere.setTranslateZ(tp.z * getDistScale());
