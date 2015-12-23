@@ -152,7 +152,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>${java.home}/../bin/javafxpackager</executable>
+                            <executable>${java.home}/../bin/javapackager</executable>
                             <arguments>
                                 <argument>-createjar</argument>
                                 <argument>-nocss2bin</argument>
@@ -276,7 +276,7 @@
                                         <argument>-outdir</argument>
                                         <argument>./target</argument>
                                         <argument>-name</argument>
-                                        <argument>${artifactId}</argument>
+                                        <argument>${project.artifactId}</argument>
                                         <argument>-outfile</argument>
                                         <argument>
                                             ${project.build.finalName}
