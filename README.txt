@@ -61,4 +61,21 @@ mvn release:clean release:prepare
 
 mvn release:perform
 
+If one would like a native installer such as .deb/.exe then it can be built with
+
+mvn package -P native_installer
+
+on Ubuntu this will produce the file:
+
+    target/bundles/poselist3dplot-1.0.deb
+
+which can be installed with
+
+
+     sudo dpkg -i target/bundles/poselist3dplot-1.0.deb
+
+and uninstalled with
+
+     sudo apt-get remove poselist3dplot 
+
 
